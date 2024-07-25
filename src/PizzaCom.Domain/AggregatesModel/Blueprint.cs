@@ -72,14 +72,14 @@ public class Blueprint : Entity, IAggregateRoot
     /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
     public void ChangeIngredientWeight(Recipe ingredient, int weight)
     {
-        var recipeEntity = _recipe.Find(i => i.Equals(ingredient));
+        var includedEntity = _included.Find(i => i.Equals(ingredient));
 
-        if (recipeEntity is null)
+        if (includedEntity is null)
         {
             throw new ArgumentException("Ingredient is not part of the recipe.");
         }
 
-        recipeEntity.ChangeWeight(weight);
+        includedEntity.ChangeWeight(weight);
     }
 
     /// <summary>
