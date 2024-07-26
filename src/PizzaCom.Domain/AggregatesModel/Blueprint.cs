@@ -76,7 +76,7 @@ public class Blueprint : Entity, IAggregateRoot
 
         if (includedEntity is null)
         {
-            throw new ArgumentException("Ingredient is not part of the recipe.");
+            throw new ArgumentException("Ingredient is not part of the included ingredients.");
         }
 
         includedEntity.ChangeWeight(weight);
