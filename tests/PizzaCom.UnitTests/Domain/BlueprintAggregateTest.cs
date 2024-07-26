@@ -51,7 +51,7 @@ public class BlueprintAggregateTest
         var cheese = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
         
         // Arrange
-        var recipe = new List<Recipe>
+        var recipe = new HashSet<Recipe>
         {
             new Recipe(tomato, 100, RecipeType.Base),
             new Recipe(cheese, 50, RecipeType.Optional)
@@ -72,7 +72,25 @@ public class BlueprintAggregateTest
         // Arrange
         var ingredient = new Ingredient("Tomato", 0.5m, IngredientType.Vegetable);
         var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe> { recipe });
+        var blueprint = new Blueprint("Veggie Pizza", 10m, new HashSet<Recipe> { recipe });
+
+        var anoutherRecipe = new Recipe(ingredient, 50, RecipeType.Optional);
+
+        // Act
+        blueprint.AddIngredient(anoutherRecipe);
+
+        // Assert
+        Assert.IsTrue(blueprint.Ingredients.Contains(recipe));
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void AddIngredient_ShouldThrowException_WhenIngredientAlreadyIncluded()
+    {
+        // Arrange
+        var ingredient = new Ingredient("Tomato", 0.5m, IngredientType.Vegetable);
+        var recipe = new Recipe(ingredient, 50, RecipeType.Base);
+        var blueprint = new Blueprint("Veggie Pizza", 10m, new HashSet<Recipe> { recipe });
 
         // Act
         blueprint.AddIngredient(recipe);
@@ -88,7 +106,20 @@ public class BlueprintAggregateTest
         // Arrange
         var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
         var recipe = new Recipe(ingredient, 50, RecipeType.Optional);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe>());
+        var blueprint = new Blueprint("Veggie Pizza", 10m, new HashSet<Recipe>());
+
+        // Act
+        blueprint.AddIngredient(recipe);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void AddIngredient_ShouldThrowException_WhenIngredientIsAlreadyExists()
+    {
+        // Arrange
+        var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
+        var recipe = new Recipe(ingredient, 50, RecipeType.Optional);
+        var blueprint = new Blueprint("Veggie Pizza", 10m, new HashSet<Recipe>());
 
         // Act
         blueprint.AddIngredient(recipe);
@@ -102,8 +133,7 @@ public class BlueprintAggregateTest
         // Arrange
         var ingredient = new Ingredient("Pepperoni", 2.0m, IngredientType.Meat);
         var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Pepperoni Pizza", 15m, new List<Recipe> { recipe });
-        blueprint.AddIngredient(recipe);
+        var blueprint = new Blueprint("Pepperoni Pizza", 15m, new HashSet<Recipe> { recipe });
 
         // Act
         blueprint.ChangeIngredientWeight(recipe, 75);
@@ -121,7 +151,7 @@ public class BlueprintAggregateTest
         // Arrange
         var ingredient = new Ingredient("Mushroom", 1.0m, IngredientType.Vegetable);
         var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Mushroom Pizza", 12m, new List<Recipe> { recipe });
+        var blueprint = new Blueprint("Mushroom Pizza", 12m, new HashSet<Recipe> { recipe });
 
         var fakeIngredient = new Ingredient("Potato", 1.0m, IngredientType.Vegetable);
         var fakeRecipe = new Recipe(fakeIngredient, 50, RecipeType.Base);
