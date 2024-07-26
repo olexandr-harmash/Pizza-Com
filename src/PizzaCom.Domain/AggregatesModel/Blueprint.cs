@@ -7,11 +7,11 @@ public class Blueprint : Entity, IAggregateRoot
 {
     private string _name;
     private decimal _baseCost;
-    private List<Recipe> _recipe;
+    private HashSet<Recipe> _recipe;
     /// <summary>
     /// TODO: create individual structure for ingradient that do not connected with recipe and define aviable fetures.
     /// </summary>
-    private List<Recipe> _included;
+    private HashSet<Recipe> _included;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Blueprint"/> class.
@@ -19,12 +19,12 @@ public class Blueprint : Entity, IAggregateRoot
     /// <param name="name">The name of the pizza blueprint.</param>
     /// <param name="baseCost">The base cost of the pizza.</param>
     /// <param name="recipe">The recipe for the pizza.</param>
-    public Blueprint(string name, decimal baseCost, List<Recipe> recipe)
+    public Blueprint(string name, decimal baseCost, HashSet<Recipe> recipe)
     {
         _name = name;
         _baseCost = baseCost;
         _recipe = recipe;
-        _included = _recipe.Where(i => i.Type == RecipeType.Base).ToList();
+        _included = _recipe.Where(i => i.Type == RecipeType.Base).ToHashSet();
     }
 
     /// <summary>
@@ -40,28 +40,36 @@ public class Blueprint : Entity, IAggregateRoot
     /// <summary>
     /// Gets the recipe for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Recipe => _recipe.AsReadOnly();
+    public IReadOnlyCollection<Recipe> Recipe => _recipe.ToList().AsReadOnly();
 
     /// <summary>
     /// Gets the current ingredients for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Ingredients => _included.AsReadOnly();
+    public IReadOnlyCollection<Recipe> Ingredients => _included.ToList().AsReadOnly();
 
     /// <summary>
     /// Adds an ingredient to the pizza.
     /// </summary>
     /// <param name="ingredient">The ingredient to add.</param>
-    /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
-    public void AddIngredient(Recipe ingredient)
+    /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe or already exists in the included ingredients.</exception>
+    public void AddIngredient(Recipe recipe)
     {
-        var recipeEntity = _recipe.Find(i => i.Equals(ingredient));
+        // Check if the ingredient is part of the recipe
+        var recipeEntity = _recipe.FirstOrDefault(i => i.Ingredient.Equals(recipe.Ingredient));
 
         if (recipeEntity is null)
         {
             throw new ArgumentException("Ingredient is not part of the recipe.");
         }
 
-        _included.Add(ingredient);
+        // Try to add the ingredient to the included list
+        var isAdded = _included.Add(recipe);
+
+        // If the ingredient was not added, it means it already exists
+        if (!isAdded)
+        {
+            throw new ArgumentException("Ingredient already exists in the pizza.");
+        }
     }
 
     /// <summary>
@@ -72,7 +80,7 @@ public class Blueprint : Entity, IAggregateRoot
     /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
     public void ChangeIngredientWeight(Recipe ingredient, int weight)
     {
-        var includedEntity = _included.Find(i => i.Equals(ingredient));
+        var includedEntity = _included.FirstOrDefault(i => i.Equals(ingredient));
 
         if (includedEntity is null)
         {
