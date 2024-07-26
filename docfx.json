@@ -1,0 +1,44 @@
+{
+  "metadata": [
+    {
+      "src": [
+      {
+          "files": [ "src/**.csproj" ],
+          "exclude": [ "_site/**", "**/bin/**", "**/obj/**", "**/[Tt]ests/**" ]
+      }
+      ],
+      "dest": "references",
+      "disableGitFeatures": false
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "",
+      "_appTitle": "",
+      "_enableSearch": true,
+      "pdf": true
+    }
+  }
+}

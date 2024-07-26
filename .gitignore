@@ -52,10 +52,6 @@
 *.nupkg
 .nuget/
 
-# Ignore build results
-bin/
-obj/
-
 # Ignore user-specific files
 *.suo
 *.user
@@ -107,3 +103,9 @@ Thumbs.db
 # Ignore all bin and obj directories
 **/bin/
 **/obj/
+
+# Ignore DocFX build output
+_site/
+references/
+**/toc.yml
+index.md
