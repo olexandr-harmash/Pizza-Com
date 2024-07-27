@@ -12,7 +12,7 @@ To get started with Pizza-Com, follow these steps:
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/pizza-com.git
+    git clone https://github.com/olexandr-harmash/Pizza-Com.git
     cd pizza-com
     ```
 

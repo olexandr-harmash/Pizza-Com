@@ -107,5 +107,3 @@ Thumbs.db
 # Ignore DocFX build output
 _site/
 references/
-**/toc.yml
-index.md
