@@ -1,3 +1,3 @@
-namespace PizzaCom.Domain.Seedwork;
+namespace PizzaCom.Domain.SeedWork;
 
 public interface IAggregateRoot { }

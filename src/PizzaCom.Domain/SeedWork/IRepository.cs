@@ -1,4 +1,4 @@
-namespace PizzaCom.Domain.Seedwork;
+namespace PizzaCom.Domain.SeedWork;
 
 public interface IRepository<T> where T : IAggregateRoot
 {
