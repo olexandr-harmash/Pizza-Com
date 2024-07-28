@@ -1,6 +1,6 @@
 namespace PizzaCom.Domain.AggregatesModel;
 
-public interface IPizzaRepository
+public interface IBlueprintRepository
     : IRepository<Blueprint>
 {
 

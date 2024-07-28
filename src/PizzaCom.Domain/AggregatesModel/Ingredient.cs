@@ -1,15 +1,45 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PizzaCom.Domain.AggregatesModel;
 
- /// <summary>
+/// <summary>
 /// Represents an ingredient in the pizza domain.
 /// </summary>
 public class Ingredient : Entity
 {
+    /// <summary>
+    /// The name of the ingredient.
+    /// </summary>
     private string _name;
+
+    /// <summary>
+    /// The cost of the ingredient.
+    /// </summary>
     private decimal _cost;
+
+    /// <summary>
+    /// Navigation property. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public List<Recipe> _recipe;
+
+    /// <summary>
+    /// The type of the ingredient.
+    /// </summary>
     private IngredientType _type;
 
-     /// <summary>
+    /// <summary>
+    /// Navigation property. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public int _ingredientTypeId;
+
+    /// <summary>
+    /// Navigation property. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public List<Blueprint> _blueprints;
+
+    protected Ingredient() {}
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Ingredient"/> class.
     /// </summary>
     /// <param name="name">The name of the ingredient.</param>

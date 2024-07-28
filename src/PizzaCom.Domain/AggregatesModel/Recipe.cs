@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PizzaCom.Domain.AggregatesModel;
 
 /// <summary>
@@ -5,9 +7,42 @@ namespace PizzaCom.Domain.AggregatesModel;
 /// </summary>
 public class Recipe : Entity
 {
+    /// <summary>
+    /// Foreign key to the Blueprint entity. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public int _blueprintId;
+
+    /// <summary>
+    /// Foreign key to the Ingredient entity. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public int _ingredientId;
+
+    /// <summary>
+    /// Weight of the ingredient in the recipe.
+    /// </summary>
     private int _weight;
+
+    /// <summary>
+    /// Type of the recipe.
+    /// </summary>
     private RecipeType _type;
-    private Ingredient _ingredient;
+
+    /// <summary>
+    /// Navigation property. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public int _recipeTypeId;
+
+    /// <summary>
+    /// Navigation property to the Blueprint entity. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    public Blueprint _blueprint;
+
+    /// <summary>
+    /// Ingredient entity.
+    /// </summary>
+    public Ingredient _ingredient;
+
+    protected Recipe() {}
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Recipe"/> class.
@@ -36,6 +71,7 @@ public class Recipe : Entity
     /// </summary>
     public RecipeType Type => _type;
 
+    [NotMapped]
     /// <summary>
     /// Gets the ingredient of the recipe.
     /// </summary>
