@@ -21,8 +21,8 @@ class BlueprintEntityTypeConfiguration
             .WithMany("_blueprints")
             .UsingEntity(
                 typeof(Recipe), 
-                l => l.HasOne("_ingredient").WithMany("_recipe").HasForeignKey("_ingredientId"),
-                r => r.HasOne("_blueprint").WithMany("_recipe").HasForeignKey("_blueprintId")
+                l => l.HasOne("Ingredient").WithMany("_recipe").HasForeignKey("_ingredientId"),
+                r => r.HasOne("_blueprint").WithMany("Recipe").HasForeignKey("_blueprintId")
             );
     }
 }

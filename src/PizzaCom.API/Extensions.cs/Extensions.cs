@@ -1,6 +1,3 @@
-using PizzaCom.Infrastructure;
-using PizzaCom.API.Infrastructure.Services;
-
 namespace PizzaCom.API.Extensions;
 
 public static class Extensions
@@ -10,5 +7,9 @@ public static class Extensions
         builder.AddNpgsqlDbContext<PizzaComContext>("PizzaComDB");
 
         builder.Services.AddMigration<PizzaComContext, PizzaComContextSeed>();
+
+        builder.Services.AddTransient<IBlueprintRepository, BlueprintRepository>();
+
+        builder.Services.AddTransient<PizzaComServices>();
     }
 }

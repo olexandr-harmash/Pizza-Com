@@ -63,6 +63,7 @@ public class Ingredient : Entity
         _name = name;
         _cost = cost;
         _type = type ?? throw new ArgumentNullException(nameof(type), "Ingredient type cannot be null.");
+        _ingredientTypeId = type.Id; //привязать к другому ключу публичному
     }
 
     /// <summary>

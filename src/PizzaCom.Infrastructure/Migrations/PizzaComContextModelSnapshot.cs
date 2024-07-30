@@ -151,12 +151,12 @@ namespace PizzaCom.Infrastructure.Migrations
             modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Recipe", b =>
                 {
                     b.HasOne("PizzaCom.Domain.AggregatesModel.Blueprint", "_blueprint")
-                        .WithMany("_recipe")
+                        .WithMany("Recipe")
                         .HasForeignKey("_blueprintId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PizzaCom.Domain.AggregatesModel.Ingredient", "_ingredient")
+                    b.HasOne("PizzaCom.Domain.AggregatesModel.Ingredient", "Ingredient")
                         .WithMany("_recipe")
                         .HasForeignKey("_ingredientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -168,14 +168,14 @@ namespace PizzaCom.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("_blueprint");
+                    b.Navigation("Ingredient");
 
-                    b.Navigation("_ingredient");
+                    b.Navigation("_blueprint");
                 });
 
             modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Blueprint", b =>
                 {
-                    b.Navigation("_recipe");
+                    b.Navigation("Recipe");
                 });
 
             modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Ingredient", b =>

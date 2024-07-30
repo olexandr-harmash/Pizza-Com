@@ -37,6 +37,7 @@ public class Recipe : Entity
     /// </summary>
     public Blueprint _blueprint;
 
+    [NotMapped]
     /// <summary>
     /// Ingredient entity.
     /// </summary>
@@ -64,14 +65,15 @@ public class Recipe : Entity
 
         _weight = weight;
         _type = type ?? throw new ArgumentNullException(nameof(type), "Recipe type cannot be null.");
+        _recipeTypeId = type.Id;
+        _ingredientId = ingredient.Id;
     }
 
     /// <summary>
     /// Gets the type of the recipe.
     /// </summary>
     public RecipeType Type => _type;
-
-    [NotMapped]
+    
     /// <summary>
     /// Gets the ingredient of the recipe.
     /// </summary>

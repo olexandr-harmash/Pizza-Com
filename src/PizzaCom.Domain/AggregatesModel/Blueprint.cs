@@ -17,13 +17,14 @@ public class Blueprint : Entity, IAggregateRoot
     /// </summary>
     private decimal _baseCost;
 
-    private HashSet<Recipe> _recipe;
+    [NotMapped]
+    private readonly List<Recipe> _recipe;
 
     [NotMapped]
     /// <summary>
     /// TODO: create individual structure for ingradient that do not connected with recipe and define aviable fetures.
     /// </summary>
-    private HashSet<Recipe> _included;
+    private readonly HashSet<Recipe> _included;
 
     /// <summary>
     /// Ingredient entities. This field is used only for navigation and is ignored by the domain.
@@ -39,7 +40,7 @@ public class Blueprint : Entity, IAggregateRoot
     /// <param name="name">The name of the pizza blueprint.</param>
     /// <param name="baseCost">The base cost of the pizza.</param>
     /// <param name="recipe">The recipe for the pizza.</param>
-    public Blueprint(string name, decimal baseCost, HashSet<Recipe> recipe)
+    public Blueprint(string name, decimal baseCost, List<Recipe> recipe)
     {
         _name = name;
         _baseCost = baseCost;
@@ -57,11 +58,10 @@ public class Blueprint : Entity, IAggregateRoot
     /// </summary>
     public decimal BaseCost => _baseCost;
 
-    [NotMapped]
     /// <summary>
     /// Gets the recipe for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Recipe => _recipe.ToList().AsReadOnly();
+    public IReadOnlyCollection<Recipe> Recipe => _recipe.AsReadOnly();
 
     [NotMapped]
     /// <summary>
@@ -87,7 +87,7 @@ public class Blueprint : Entity, IAggregateRoot
         // Try to add the ingredient to the included list
         var isAdded = _included.Add(recipe);
 
-        // If the ingredient was not added, it means it already exists
+        //If the ingredient was not added, it means it already exists
         if (!isAdded)
         {
             throw new ArgumentException("Ingredient already exists in the pizza.");
