@@ -14,7 +14,7 @@ public class BlueprintRepositoryTests
 
     public BlueprintRepositoryTests()
     {
-     _context = PizzaComContextFactory.Create();
+        _context = PizzaComContextFactory.Create();
         _repository = new BlueprintRepository(_context);
     }
 
@@ -31,7 +31,7 @@ public class BlueprintRepositoryTests
 
         _repository.Add(blueprint);
 
-        await _repository.SaveChangesAsync();
+        await _repository.UnitOfWork.SaveChangesAsync();
 
         var result = await _repository.GetAsync(blueprint.Id);
 

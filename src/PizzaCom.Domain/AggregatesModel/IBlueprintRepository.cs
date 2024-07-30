@@ -6,6 +6,4 @@ public interface IBlueprintRepository
     public Blueprint Add(Blueprint blueprint);
 
     public Task<Blueprint> GetAsync(int blueprintId);
-
-     public Task SaveChangesAsync();
 }

@@ -26,9 +26,4 @@ public class BlueprintRepository : IBlueprintRepository
 
         return blueprint;
     }
-
-    public Task SaveChangesAsync()
-    {
-        return _context.SaveChangesAsync();
-    }
 }
