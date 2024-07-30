@@ -96,9 +96,9 @@ namespace PizzaCom.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
+                    _ingredientId = table.Column<int>(type: "integer", nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false),
                     _blueprintId = table.Column<int>(type: "integer", nullable: false),
-                    _ingredientId = table.Column<int>(type: "integer", nullable: false),
                     _recipeTypeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
