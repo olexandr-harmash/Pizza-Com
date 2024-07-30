@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PizzaCom.Domain.AggregatesModel;
 
 /// <summary>
@@ -5,13 +7,31 @@ namespace PizzaCom.Domain.AggregatesModel;
 /// </summary>
 public class Blueprint : Entity, IAggregateRoot
 {
+    /// <summary>
+    /// The name of the ingredient.
+    /// </summary>
     private string _name;
+
+    /// <summary>
+    /// The base cost of the ingredient.
+    /// </summary>
     private decimal _baseCost;
+
     private HashSet<Recipe> _recipe;
+
+    [NotMapped]
     /// <summary>
     /// TODO: create individual structure for ingradient that do not connected with recipe and define aviable fetures.
     /// </summary>
     private HashSet<Recipe> _included;
+
+    /// <summary>
+    /// Ingredient entities. This field is used only for navigation and is ignored by the domain.
+    /// </summary>
+    private List<Ingredient> _ingredients;
+
+
+    protected Blueprint() {}
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Blueprint"/> class.
@@ -37,15 +57,17 @@ public class Blueprint : Entity, IAggregateRoot
     /// </summary>
     public decimal BaseCost => _baseCost;
 
+    [NotMapped]
     /// <summary>
     /// Gets the recipe for the pizza.
     /// </summary>
     public IReadOnlyCollection<Recipe> Recipe => _recipe.ToList().AsReadOnly();
 
+    [NotMapped]
     /// <summary>
     /// Gets the current ingredients for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Ingredients => _included.ToList().AsReadOnly();
+    public IReadOnlyCollection<Recipe> Included => _included.ToList().AsReadOnly();
 
     /// <summary>
     /// Adds an ingredient to the pizza.

@@ -63,7 +63,7 @@ public class BlueprintAggregateTest
         Assert.AreEqual("Margherita", blueprint.Name);
         Assert.AreEqual(5.0m, blueprint.BaseCost);
         Assert.AreEqual(2, blueprint.Recipe.Count);
-        Assert.AreEqual(1, blueprint.Ingredients.Count);
+        Assert.AreEqual(1, blueprint.Included.Count);
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class BlueprintAggregateTest
         blueprint.AddIngredient(anoutherRecipe);
 
         // Assert
-        Assert.IsTrue(blueprint.Ingredients.Contains(recipe));
+        Assert.IsTrue(blueprint.Included.Contains(recipe));
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public class BlueprintAggregateTest
         blueprint.AddIngredient(recipe);
 
         // Assert
-        Assert.IsTrue(blueprint.Ingredients.Contains(recipe));
+        Assert.IsTrue(blueprint.Included.Contains(recipe));
     }
 
     [TestMethod]
@@ -139,7 +139,7 @@ public class BlueprintAggregateTest
         blueprint.ChangeIngredientWeight(recipe, 75);
 
         // Assert
-        var updatedRecipe = blueprint.Ingredients.FirstOrDefault(i => i.Equals(recipe));
+        var updatedRecipe = blueprint.Included.FirstOrDefault(i => i.Equals(recipe));
         Assert.IsNotNull(updatedRecipe);
         Assert.AreEqual(75, updatedRecipe.Weight);
     }
