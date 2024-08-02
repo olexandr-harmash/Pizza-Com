@@ -20,8 +20,9 @@ public class Ingredient : Entity
     /// <summary>
     /// Navigation property. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public List<Recipe> _recipe;
+    private List<Recipe> _recipe;
 
+    [NotMapped]
     /// <summary>
     /// The type of the ingredient.
     /// </summary>
@@ -30,12 +31,12 @@ public class Ingredient : Entity
     /// <summary>
     /// Navigation property. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public int _ingredientTypeId;
+    private int _ingredientTypeId;
 
     /// <summary>
     /// Navigation property. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public List<Blueprint> _blueprints;
+    private List<Blueprint> _blueprints;
 
     protected Ingredient() {}
 

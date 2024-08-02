@@ -17,7 +17,7 @@ class IngredientEntityTypeConfiguration
 
         ingredientConfiguration.Property(i => i.Cost);
 
-        ingredientConfiguration.HasOne<IngredientType>()
+        ingredientConfiguration.HasOne(i => i.Type)
           .WithMany()
           .HasForeignKey("_ingredientTypeId");
     }

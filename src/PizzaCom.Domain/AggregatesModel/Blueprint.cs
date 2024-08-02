@@ -129,4 +129,21 @@ public class Blueprint : Entity, IAggregateRoot
     {
         return _included.Sum(i => i.Weight);
     }
+
+    /// <summary>
+    /// Exclude the ingredient in the recipe.
+    /// </summary>
+    /// <param name="recipe">The ingredient to exclude.</param>
+    /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
+    public void ExcludeIngredientById(int recipeId)
+    {
+        var recipe = _included.FirstOrDefault(r => r.Ingredient.Id == recipeId);
+
+        if (recipe == null)
+        {
+            throw new ArgumentException("Ingredient is not part of the included ingredients.");
+        }
+
+        _included.Remove(recipe);
+    }
 }

@@ -1,11 +1,9 @@
-using PizzaCom.Domain.AggregatesModel;
-
 namespace PizzaCom.API.Controllers;
 
 public class PizzaComServices(
     ILogger<PizzaComServices> logger,
-    IBlueprintRepository repository)
+    IBlueprintQueries queries)
 {
     public ILogger<PizzaComServices> Logger { get; } = logger;
-    public IBlueprintRepository Repository { get; } = repository;
+    public IBlueprintQueries Queries { get; } = queries;
 }

@@ -76,7 +76,8 @@ namespace PizzaCom.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Cost = table.Column<decimal>(type: "numeric", nullable: false),
-                    _ingredientTypeId = table.Column<int>(type: "integer", nullable: false)
+                    _ingredientTypeId = table.Column<int>(type: "integer", nullable: false),
+                    RecipeTypeId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,6 +89,12 @@ namespace PizzaCom.Infrastructure.Migrations
                         principalTable: "ingredient_type",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ingredient_recipe_type_RecipeTypeId",
+                        column: x => x.RecipeTypeId,
+                        principalSchema: "pizza_com",
+                        principalTable: "recipe_type",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -96,10 +103,10 @@ namespace PizzaCom.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
+                    _recipeTypeId = table.Column<int>(type: "integer", nullable: false),
                     _ingredientId = table.Column<int>(type: "integer", nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false),
-                    _blueprintId = table.Column<int>(type: "integer", nullable: false),
-                    _recipeTypeId = table.Column<int>(type: "integer", nullable: false)
+                    _blueprintId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,6 +133,12 @@ namespace PizzaCom.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ingredient_RecipeTypeId",
+                schema: "pizza_com",
+                table: "ingredient",
+                column: "RecipeTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ingredient__ingredientTypeId",
@@ -168,11 +181,11 @@ namespace PizzaCom.Infrastructure.Migrations
                 schema: "pizza_com");
 
             migrationBuilder.DropTable(
-                name: "recipe_type",
+                name: "ingredient_type",
                 schema: "pizza_com");
 
             migrationBuilder.DropTable(
-                name: "ingredient_type",
+                name: "recipe_type",
                 schema: "pizza_com");
 
             migrationBuilder.DropSequence(

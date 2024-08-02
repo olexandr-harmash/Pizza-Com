@@ -11,8 +11,8 @@ public class PizzaComContextFactory
 
         var context = new PizzaComContext(options);
         
-        //context.Database.EnsureDeleted();
-        //context.Database.EnsureCreated();
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
 
         return context;
     }

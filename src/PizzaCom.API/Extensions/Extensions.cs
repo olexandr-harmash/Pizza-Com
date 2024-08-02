@@ -1,3 +1,5 @@
+using PizzaCom.API.Application;
+
 namespace PizzaCom.API.Extensions;
 
 public static class Extensions
@@ -8,8 +10,9 @@ public static class Extensions
 
         builder.Services.AddMigration<PizzaComContext, PizzaComContextSeed>();
 
-        builder.Services.AddTransient<IBlueprintRepository, BlueprintRepository>();
-
-        builder.Services.AddTransient<PizzaComServices>();
+        builder.Services.AddScoped<BlueprintFactory>();
+        builder.Services.AddScoped<IBlueprintQueries, BlueprintQueries>();
+        builder.Services.AddScoped<IBlueprintRepository, BlueprintRepository>();
+        builder.Services.AddScoped<PizzaComServices>();
     }
 }

@@ -1,5 +1,3 @@
-using PizzaCom.Infrastructure;
-using PizzaCom.Domain.AggregatesModel;
 using PizzaCom.Domain.SeedWork;
 
 namespace PizzaCom.API.Infrastructure.Services;
