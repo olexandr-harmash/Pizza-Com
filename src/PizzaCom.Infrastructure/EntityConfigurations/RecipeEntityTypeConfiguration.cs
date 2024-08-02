@@ -14,7 +14,7 @@ class RecipeEntityTypeConfiguration
 
         recipeConfiguration.Property(b => b.Weight);
 
-        recipeConfiguration.HasOne<RecipeType>()
+        recipeConfiguration.HasOne(r => r.Type)
           .WithMany()
           .HasForeignKey("_recipeTypeId");
     }

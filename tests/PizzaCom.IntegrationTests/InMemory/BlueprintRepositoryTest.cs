@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Query;
 using PizzaCom.IntegrationTests.Factory;
 
 namespace PizzaCom.IntegrationTests.InMemory;
@@ -18,6 +17,7 @@ public class BlueprintRepositoryTests
         _repository = new BlueprintRepository(_context);
     }
 
+    //TODO: domain model fabric with ready templates and builder behavior for simplify testing
     [TestMethod]
     public async Task CreateBlueprintWithRecipe_ReturnsBlueprint()
     {
@@ -33,7 +33,7 @@ public class BlueprintRepositoryTests
 
         await _repository.UnitOfWork.SaveChangesAsync();
 
-        var result = await _repository.GetAsync(blueprint.Id);
+        var result = await _context.Blueprints.FindAsync(blueprint.Id);
 
         // Assert
         Assert.IsNotNull(result);

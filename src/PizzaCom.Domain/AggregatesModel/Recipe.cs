@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PizzaCom.Domain.AggregatesModel;
 
+//TODO: rename that represent item in recipe but not recipe
 /// <summary>
 /// Represents a recipe for a pizza, including ingredient and its weight.
 /// </summary>
@@ -10,18 +11,19 @@ public class Recipe : Entity
     /// <summary>
     /// Foreign key to the Blueprint entity. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public int _blueprintId;
+    private int _blueprintId;
 
     /// <summary>
     /// Foreign key to the Ingredient entity. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public int _ingredientId;
+    private int _ingredientId;
 
     /// <summary>
     /// Weight of the ingredient in the recipe.
     /// </summary>
     private int _weight;
 
+    [NotMapped]
     /// <summary>
     /// Type of the recipe.
     /// </summary>
@@ -30,12 +32,12 @@ public class Recipe : Entity
     /// <summary>
     /// Navigation property. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public int _recipeTypeId;
+    private int _recipeTypeId;
 
     /// <summary>
     /// Navigation property to the Blueprint entity. This field is used only for navigation and is ignored by the domain.
     /// </summary>
-    public Blueprint _blueprint;
+    private Blueprint _blueprint;
 
     [NotMapped]
     /// <summary>
@@ -74,6 +76,7 @@ public class Recipe : Entity
     /// </summary>
     public RecipeType Type => _type;
     
+    //TODO: make field private and only for navigation, use recipe model as ingredient with additional recipe information.
     /// <summary>
     /// Gets the ingredient of the recipe.
     /// </summary>
