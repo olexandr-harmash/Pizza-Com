@@ -1,21 +1,22 @@
+using PizzaCom.Infrastructure.Models;
+
 namespace PizzaCom.Infrastructure.EntityConfiguration;
 
 class RecipeEntityTypeConfiguration
-    : IEntityTypeConfiguration<Recipe>
+    : IEntityTypeConfiguration<RecipeEntity>
 {
-    public void Configure(EntityTypeBuilder<Recipe> recipeConfiguration)
+    public void Configure(EntityTypeBuilder<RecipeEntity> recipeConfiguration)
     {
         recipeConfiguration.ToTable("recipe");
-
-        recipeConfiguration.Ignore(b => b.DomainEvents);
 
         recipeConfiguration.Property(b => b.Id)
             .UseHiLo("recipeseq");
 
-        recipeConfiguration.Property(b => b.Weight);
+        recipeConfiguration.Property(b => b.Weight)
+            .IsRequired();
 
         recipeConfiguration.HasOne(r => r.Type)
           .WithMany()
-          .HasForeignKey("_recipeTypeId");
+          .HasForeignKey(r => r.RecipeTypeId);
     }
 }

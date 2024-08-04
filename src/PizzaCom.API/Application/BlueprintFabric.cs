@@ -1,7 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using PizzaCom.API.Application.Builders;
-using PizzaCom.API.Models;
-
 namespace PizzaCom.API.Application;
 
 /// <summary>
@@ -9,16 +5,10 @@ namespace PizzaCom.API.Application;
 /// </summary>
 public class BlueprintFactory
 {
-    private readonly PizzaComContext _context;
-    
     /// <summary>
     /// Initializes a new instance of the <see cref="BlueprintFactory"/> class.
     /// </summary>
-    /// <param name="context">The database context to use.</param>
-    public BlueprintFactory(PizzaComContext context) 
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    public BlueprintFactory() {}
 
     /// <summary>
     /// Creates a Blueprint with the specified options.
@@ -26,7 +16,7 @@ public class BlueprintFactory
     /// <param name="options">The options to apply to the blueprint.</param>
     /// <returns>The constructed <see cref="Blueprint"/> instance.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when the blueprint is not found.</exception>
-    public async Task<Blueprint> BlueprintWithOptions(BlueprintOptions options, Blueprint blueprint)
+    public Blueprint BlueprintWithOptions(BlueprintOptions options, Blueprint blueprint)
     {
         if (blueprint is null)
             throw new KeyNotFoundException("Blueprint not found.");
@@ -61,8 +51,7 @@ public class BlueprintFactory
             _ => null
         };
 
-        // Проверяем доступность и возвращаем результат
-        return option.IsAvailable
+        return option?.IsAvailable == true
             ? new OptionDetails(option)
             : null;
     }

@@ -1,3 +1,7 @@
+using PizzaCom.API.Application;
+using PizzaCom.API.Application.Builders;
+using PizzaCom.API.Models;
+using PizzaCom.Infrastructure.Repositories;
 using PizzaCom.IntegrationTests.Factory;
 
 namespace PizzaCom.IntegrationTests.InMemory;
@@ -8,6 +12,9 @@ public class BlueprintRepositoryTests
 {
     private readonly PizzaComContext _context;
     private readonly BlueprintRepository _repository;
+    private readonly API.Application.BlueprintFactory _factory;
+
+    private readonly UnitTests.BlueprintFactory _templateFactory;
 
     public TestContext TestContext { get; set; }
 
@@ -15,31 +22,57 @@ public class BlueprintRepositoryTests
     {
         _context = PizzaComContextFactory.Create();
         _repository = new BlueprintRepository(_context);
+        _factory = new  API.Application.BlueprintFactory();
+        _templateFactory = new UnitTests.BlueprintFactory();
     }
 
     //TODO: domain model fabric with ready templates and builder behavior for simplify testing
     [TestMethod]
     public async Task CreateBlueprintWithRecipe_ReturnsBlueprint()
     {
-        var pizzaName = "Pepperoni Pizza";
-        var ingredientName = "Pepperoni";
-
-        // Arrange
-        var ingredient = new Ingredient(ingredientName, 0.5m, IngredientType.Meat);
-        var recipe = new Recipe(ingredient, 60, RecipeType.Base);
-        var blueprint = new Blueprint(pizzaName, 2.5m, new List<Recipe> { recipe });
+        var blueprint = _templateFactory.CreateCheesePizza();
 
         _repository.Add(blueprint);
 
         await _repository.UnitOfWork.SaveChangesAsync();
 
-        var result = await _context.Blueprints.FindAsync(blueprint.Id);
+        var result = await _repository.GetAsync(1);
 
         // Assert
         Assert.IsNotNull(result);
+        Assert.AreEqual(result.Name, blueprint.Name);
+        Assert.AreEqual(result.BaseCost, blueprint.BaseCost);
+        Assert.AreEqual(result.Recipes.Count, 2);
+        Assert.AreEqual(result.Included.Count, 2);
+        Assert.AreEqual(result.Recipes.First().Name, blueprint.Recipes.First().Name);
+        Assert.IsTrue(result.Recipes.First().IngredientType.Equals(IngredientType.Grain));
+    }
+
+    [TestMethod]
+    public async Task GetBlueprintBuilderModel_ReturnsCorrectModel()
+    {
+        // Arrange
+        var pizzaName = "Pepperoni Pizza";
+        var recipe = new Recipe(id: 1, ingredientId: 60, costPer100g: 5.50m, weight: 80, name: "Tomato Sauce", type: RecipeType.Base, ingredientType: IngredientType.Meat);
+        var blueprint = new Blueprint(1, pizzaName, 2.5m, new List<Recipe> { recipe });
+        _repository.Add(blueprint);
+        await _repository.UnitOfWork.SaveChangesAsync();
+
+        var options = new BlueprintOptions { Id = 1 }; // Настройте BlueprintOptions по необходимости
+
+        // Act
+        var result = _factory.BlueprintWithOptions(options, blueprint);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(result.Id, blueprint.Id);
         Assert.AreEqual(result.Name, pizzaName);
-        Assert.AreEqual(result.BaseCost, 2.5m);
-        Assert.AreEqual(result.Recipe.Count, 1);
+        Assert.AreEqual(result.Cost, 4.4m);
+        Assert.IsNotNull(_factory.GetOptionDetails(result, nameof(AddDoubleMeatOption)));
+        Assert.AreEqual(result.Included.Count, 1);
+        Assert.AreEqual(result.Excluded.Count, 0); // Если в тесте нет исключенных ингредиентов
+        Assert.AreEqual(result.Included.First().Name, "Tomato Sauce");
+        Assert.AreEqual(result.Included.First().Id, 60);
     }
 
     public void Dispose()

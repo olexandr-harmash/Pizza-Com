@@ -30,7 +30,6 @@ public class PizzaComController : ControllerBase
     public async Task<ActionResult<BlueprintBuilderModel>> GetBlueprintBuilder([FromBody] BlueprintOptions options,
     [FromServices] PizzaComServices services)
     {
-        services.Logger.LogInformation(options.Id.ToString() + "sdflgmkslgjklsg");
         var blueprintBuilder = await services.Queries.GetBlueprintBuilder(options);
         if (blueprintBuilder == null)
         {
@@ -44,7 +43,7 @@ public class PizzaComController : ControllerBase
     /// </summary>
     /// <returns>A list of ingredients.</returns>
     [HttpGet("ingredients")]
-    public async Task<ActionResult<List<BlueprintBuilderRecipeItem>>> GetIngredients([FromServices] PizzaComServices services)
+    public async Task<ActionResult<List<IngredientDTO>>> GetIngredients([FromServices] PizzaComServices services)
     {
         var ingredients = await services.Queries.GetIngredients();
         return Ok(ingredients);

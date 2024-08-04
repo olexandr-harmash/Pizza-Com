@@ -76,25 +76,18 @@ namespace PizzaCom.Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Cost = table.Column<decimal>(type: "numeric", nullable: false),
-                    _ingredientTypeId = table.Column<int>(type: "integer", nullable: false),
-                    RecipeTypeId = table.Column<int>(type: "integer", nullable: true)
+                    IngredientTypeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ingredient", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ingredient_ingredient_type__ingredientTypeId",
-                        column: x => x._ingredientTypeId,
+                        name: "FK_ingredient_ingredient_type_IngredientTypeId",
+                        column: x => x.IngredientTypeId,
                         principalSchema: "pizza_com",
                         principalTable: "ingredient_type",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ingredient_recipe_type_RecipeTypeId",
-                        column: x => x.RecipeTypeId,
-                        principalSchema: "pizza_com",
-                        principalTable: "recipe_type",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -103,31 +96,31 @@ namespace PizzaCom.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
-                    _recipeTypeId = table.Column<int>(type: "integer", nullable: false),
-                    _ingredientId = table.Column<int>(type: "integer", nullable: false),
+                    BlueprintId = table.Column<int>(type: "integer", nullable: false),
+                    IngredientId = table.Column<int>(type: "integer", nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false),
-                    _blueprintId = table.Column<int>(type: "integer", nullable: false)
+                    RecipeTypeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_recipe", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_recipe_blueprint__blueprintId",
-                        column: x => x._blueprintId,
+                        name: "FK_recipe_blueprint_BlueprintId",
+                        column: x => x.BlueprintId,
                         principalSchema: "pizza_com",
                         principalTable: "blueprint",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_recipe_ingredient__ingredientId",
-                        column: x => x._ingredientId,
+                        name: "FK_recipe_ingredient_IngredientId",
+                        column: x => x.IngredientId,
                         principalSchema: "pizza_com",
                         principalTable: "ingredient",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_recipe_recipe_type__recipeTypeId",
-                        column: x => x._recipeTypeId,
+                        name: "FK_recipe_recipe_type_RecipeTypeId",
+                        column: x => x.RecipeTypeId,
                         principalSchema: "pizza_com",
                         principalTable: "recipe_type",
                         principalColumn: "Id",
@@ -135,34 +128,28 @@ namespace PizzaCom.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ingredient_RecipeTypeId",
+                name: "IX_ingredient_IngredientTypeId",
                 schema: "pizza_com",
                 table: "ingredient",
+                column: "IngredientTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_recipe_BlueprintId",
+                schema: "pizza_com",
+                table: "recipe",
+                column: "BlueprintId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_recipe_IngredientId",
+                schema: "pizza_com",
+                table: "recipe",
+                column: "IngredientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_recipe_RecipeTypeId",
+                schema: "pizza_com",
+                table: "recipe",
                 column: "RecipeTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ingredient__ingredientTypeId",
-                schema: "pizza_com",
-                table: "ingredient",
-                column: "_ingredientTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_recipe__blueprintId",
-                schema: "pizza_com",
-                table: "recipe",
-                column: "_blueprintId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_recipe__ingredientId",
-                schema: "pizza_com",
-                table: "recipe",
-                column: "_ingredientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_recipe__recipeTypeId",
-                schema: "pizza_com",
-                table: "recipe",
-                column: "_recipeTypeId");
         }
 
         /// <inheritdoc />
@@ -181,11 +168,11 @@ namespace PizzaCom.Infrastructure.Migrations
                 schema: "pizza_com");
 
             migrationBuilder.DropTable(
-                name: "ingredient_type",
+                name: "recipe_type",
                 schema: "pizza_com");
 
             migrationBuilder.DropTable(
-                name: "recipe_type",
+                name: "ingredient_type",
                 schema: "pizza_com");
 
             migrationBuilder.DropSequence(

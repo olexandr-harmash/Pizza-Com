@@ -5,6 +5,6 @@ namespace PizzaCom.API.Queries;
 public interface IBlueprintQueries
 {
     Task<List<BlueprintCard>> GetBlueprintCards();
-    Task<List<BlueprintBuilderRecipeItem>> GetIngredients();
+    Task<List<IngredientDTO>> GetIngredients();
     Task<BlueprintBuilderModel> GetBlueprintBuilder(BlueprintOptions options);
 }
