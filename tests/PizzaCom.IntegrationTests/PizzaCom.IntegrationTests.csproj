@@ -16,6 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PizzaCom.Infrastructure\PizzaCom.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\PizzaCom.Domain\PizzaCom.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PizzaCom.API\PizzaCom.API.csproj" />
+    <ProjectReference Include="..\PizzaCom.UnitTests\PizzaCom.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

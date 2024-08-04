@@ -17,22 +17,17 @@ public class Blueprint : Entity, IAggregateRoot
     /// </summary>
     private decimal _baseCost;
 
-    [NotMapped]
-    private readonly List<Recipe> _recipe;
+    private readonly List<Recipe> _recipes;
 
-    [NotMapped]
     /// <summary>
     /// TODO: create individual structure for ingradient that do not connected with recipe and define aviable fetures.
     /// </summary>
-    private readonly HashSet<Recipe> _included;
+    private readonly HashSet<Ingredient> _included;
 
     /// <summary>
-    /// Ingredient entities. This field is used only for navigation and is ignored by the domain.
+    /// TODO: create individual structure for ingradient that do not connected with recipe and define aviable fetures.
     /// </summary>
-    private List<Ingredient> _ingredients;
-
-
-    protected Blueprint() {}
+    private readonly List<Ingredient> _excluded;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Blueprint"/> class.
@@ -40,12 +35,20 @@ public class Blueprint : Entity, IAggregateRoot
     /// <param name="name">The name of the pizza blueprint.</param>
     /// <param name="baseCost">The base cost of the pizza.</param>
     /// <param name="recipe">The recipe for the pizza.</param>
-    public Blueprint(string name, decimal baseCost, List<Recipe> recipe)
+    public Blueprint(int id, string name, decimal baseCost, List<Recipe> recipes)
     {
+        Id = id;
         _name = name;
         _baseCost = baseCost;
-        _recipe = recipe;
-        _included = _recipe.Where(i => i.Type == RecipeType.Base).ToHashSet();
+        _recipes = recipes;
+        _included = recipes.Select(r => new Ingredient(
+            r.IngredientId,
+            r.Name,
+            r.CostPer100g,
+            r.Weight,
+            r.IngredientType
+        )).ToHashSet();
+        _excluded = new List<Ingredient>();
     }
 
     /// <summary>
@@ -61,33 +64,37 @@ public class Blueprint : Entity, IAggregateRoot
     /// <summary>
     /// Gets the recipe for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Recipe => _recipe.AsReadOnly();
+    public IReadOnlyCollection<Recipe> Recipes => _recipes.AsReadOnly();
 
-    [NotMapped]
     /// <summary>
     /// Gets the current ingredients for the pizza.
     /// </summary>
-    public IReadOnlyCollection<Recipe> Included => _included.ToList().AsReadOnly();
+    public IReadOnlyCollection<Ingredient> Included => _included.ToList().AsReadOnly();
+
+    /// <summary>
+    /// Gets the current ingredients that have been excluded from the pizza.
+    /// </summary>
+    public IReadOnlyCollection<Ingredient> Excluded => _excluded.AsReadOnly();
 
     /// <summary>
     /// Adds an ingredient to the pizza.
     /// </summary>
-    /// <param name="ingredient">The ingredient to add.</param>
+    /// <param name="ingredient">The ingredient to add to the pizza.</param>
     /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe or already exists in the included ingredients.</exception>
-    public void AddIngredient(Recipe recipe)
+    public void AddIngredient(Ingredient ingredient)
     {
-        // Check if the ingredient is part of the recipe
-        var recipeEntity = _recipe.FirstOrDefault(i => i.Ingredient.Equals(recipe.Ingredient));
+        // Find the recipe entry with the given ingredient
+        var r = _recipes.FirstOrDefault(r => r.IngredientId == ingredient.Id);
 
-        if (recipeEntity is null)
+        if (r is null)
         {
             throw new ArgumentException("Ingredient is not part of the recipe.");
         }
 
-        // Try to add the ingredient to the included list
-        var isAdded = _included.Add(recipe);
+        // Try to add the ingredient to the included HashSet
+        var isAdded = _included.Add(ingredient);
 
-        //If the ingredient was not added, it means it already exists
+        // If the ingredient was not added, it means it already exists
         if (!isAdded)
         {
             throw new ArgumentException("Ingredient already exists in the pizza.");
@@ -98,52 +105,58 @@ public class Blueprint : Entity, IAggregateRoot
     /// Changes the weight of an ingredient in the recipe.
     /// </summary>
     /// <param name="ingredient">The ingredient to change the weight of.</param>
-    /// <param name="weight">The new weight of the ingredient.</param>
-    /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
-    public void ChangeIngredientWeight(Recipe ingredient, int weight)
+    /// <param name="newWeight">The new weight of the ingredient.</param>
+    /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the included ingredients.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the new weight is less than zero.</exception>
+    public void ChangeIngredientWeight(Ingredient ingredient, int newWeight)
     {
-        var includedEntity = _included.FirstOrDefault(i => i.Equals(ingredient));
+        // Find the ingredient in the included HashSet
+        var i = _included.FirstOrDefault(i => i == ingredient);
 
-        if (includedEntity is null)
+        // Throw an exception if the ingredient is not found
+        if (i is null)
         {
-            throw new ArgumentException("Ingredient is not part of the included ingredients.");
+            throw new ArgumentException("The specified ingredient is not part of the included ingredients.");
         }
 
-        includedEntity.ChangeWeight(weight);
+        // Validate the new weight
+        if (newWeight < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(newWeight), "Weight cannot be less than zero.");
+        }
+
+        // Change the weight of the found ingredient
+        i.Weight = newWeight;
     }
 
     /// <summary>
     /// Gets the total cost of the pizza, including base cost and ingredient costs.
     /// </summary>
     /// <returns>The total cost of the pizza.</returns>
-    public decimal CalculateTotalCost()
-    {
-        return _included.Sum(i => i.Ingredient.Cost * i.Weight / 100);
-    }
+    public decimal Cost => _included.Sum(i => i.Cost);
+
 
     /// <summary>
     /// Gets the total weight of the pizza based on its ingredients.
     /// </summary>
     /// <returns>The total weight of the pizza.</returns>
-    public int CalculateTotalWeight()
-    {
-        return _included.Sum(i => i.Weight);
-    }
+    public int Weight => _included.Sum(i => i.Weight);
 
     /// <summary>
     /// Exclude the ingredient in the recipe.
     /// </summary>
-    /// <param name="recipe">The ingredient to exclude.</param>
+    /// <param name="ingredient">The ingredient to exclude.</param>
     /// <exception cref="ArgumentException">Thrown when the ingredient is not part of the recipe.</exception>
-    public void ExcludeIngredientById(int recipeId)
+    public void ExcludeIngredient(Ingredient ingredient)
     {
-        var recipe = _included.FirstOrDefault(r => r.Ingredient.Id == recipeId);
+        var i = _included.FirstOrDefault(i => i.Equals(ingredient));
 
-        if (recipe == null)
+        if (i == null)
         {
             throw new ArgumentException("Ingredient is not part of the included ingredients.");
         }
 
-        _included.Remove(recipe);
+        _excluded.Add(i);
+        _included.Remove(i);
     }
 }

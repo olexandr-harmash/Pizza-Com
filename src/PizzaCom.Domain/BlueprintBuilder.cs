@@ -43,7 +43,9 @@ public class BlueprintBuilder
     /// </returns>
     public BlueprintBuilder ExcludeIngredientById(int ingredientId)
     {
-        _blueprint.ExcludeIngredientById(ingredientId);
+        //TODO: exclude option
+        var i = _blueprint.Included.FirstOrDefault(i => i.Id == ingredientId);
+        _blueprint.ExcludeIngredient(i);
         return this;
     }
 

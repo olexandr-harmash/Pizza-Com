@@ -3,160 +3,44 @@ namespace PizzaCom.UnitTests.Domain;
 [TestClass]
 public class BlueprintAggregateTest
 {
+    private readonly BlueprintFactory _factory;
+
+    public BlueprintAggregateTest()
+    {
+        _factory = new BlueprintFactory();
+    }
+
     [TestMethod]
     public void Ingredient_ShouldInitializeCorrectly()
     {
         // Arrange
-        var ingredient = new Ingredient("Tomato", 1.0m, IngredientType.Vegetable);
+        var blueprint = _factory.CreateCheesePizza();
 
         // Act & Assert
-        Assert.IsNotNull(ingredient);
-    }
+        Assert.IsNotNull(blueprint, "Blueprint should not be null.");
+        Assert.AreEqual(1, blueprint.Id, "Blueprint ID does not match.");
+        Assert.AreEqual("Cheese Pizza", blueprint.Name, "Blueprint name does not match.");
+        Assert.AreEqual(10.0m, blueprint.BaseCost, "Blueprint base cost does not match.");
+        Assert.AreEqual(2, blueprint.Recipes.Count, "Number of recipes does not match.");
 
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void Ingredient_ShouldThrowArgumentNullException_WhenNameIsNull()
-    {
-        // Arrange & Act
-        var ingredient = new Ingredient(null, 1.0m, IngredientType.Meat);
-    }
+        // Assert first recipe
+        var firstRecipe = blueprint.Recipes.First();
+        Assert.AreEqual(1, firstRecipe.Id, "First recipe ID does not match.");
+        Assert.AreEqual(100, firstRecipe.IngredientId, "First recipe ingredient ID does not match.");
+        Assert.AreEqual(2.50m, firstRecipe.CostPer100g, "First recipe cost per 100g does not match.");
+        Assert.AreEqual(100, firstRecipe.Weight, "First recipe weight does not match.");
+        Assert.AreEqual("Cheese", firstRecipe.Name, "First recipe name does not match.");
+        Assert.AreEqual(RecipeType.Base, firstRecipe.Type, "First recipe type does not match.");
+        Assert.AreEqual(IngredientType.Grain, firstRecipe.IngredientType, "First recipe ingredient type does not match.");
 
-    [TestMethod]
-    public void Recipe_ShouldInitializeCorrectly()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
-        var recipe = new Recipe(ingredient, 100, RecipeType.Base);
-
-        // Act & Assert
-        Assert.AreEqual(ingredient, recipe.Ingredient);
-        Assert.AreEqual(100, recipe.Weight);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentOutOfRangeException))]
-    public void Recipe_ShouldThrowArgumentException_WhenWeightIsNegative()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
-
-        // Act
-        var recipe = new Recipe(ingredient, -10, RecipeType.Base);
-    }
-
-    [TestMethod]
-    public void Blueprint_ShouldInitializeCorrectly()
-    {
-        var tomato = new Ingredient("Tomato", 1.0m, IngredientType.Vegetable);
-        var cheese = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
-        
-        // Arrange
-        var recipe = new List<Recipe>
-        {
-            new Recipe(tomato, 100, RecipeType.Base),
-            new Recipe(cheese, 50, RecipeType.Optional)
-        };
-
-        var blueprint = new Blueprint("Margherita", 5.0m, recipe);
-
-        // Act & Assert
-        Assert.AreEqual("Margherita", blueprint.Name);
-        Assert.AreEqual(5.0m, blueprint.BaseCost);
-        Assert.AreEqual(2, blueprint.Recipe.Count);
-        Assert.AreEqual(1, blueprint.Included.Count);
-    }
-
-    [TestMethod]
-    public void AddIngredient_ShouldAddIngredient_WhenIngredientIsInRecipe()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Tomato", 0.5m, IngredientType.Vegetable);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe> { recipe });
-
-        var anoutherRecipe = new Recipe(ingredient, 50, RecipeType.Optional);
-
-        // Act
-        blueprint.AddIngredient(anoutherRecipe);
-
-        // Assert
-        Assert.IsTrue(blueprint.Included.Contains(recipe));
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void AddIngredient_ShouldThrowException_WhenIngredientAlreadyIncluded()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Tomato", 0.5m, IngredientType.Vegetable);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe> { recipe });
-
-        // Act
-        blueprint.AddIngredient(recipe);
-
-        // Assert
-        Assert.IsTrue(blueprint.Included.Contains(recipe));
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void AddIngredient_ShouldThrowException_WhenIngredientIsNotInRecipe()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Optional);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe>());
-
-        // Act
-        blueprint.AddIngredient(recipe);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void AddIngredient_ShouldThrowException_WhenIngredientIsAlreadyExists()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Cheese", 1.5m, IngredientType.Dairy);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Optional);
-        var blueprint = new Blueprint("Veggie Pizza", 10m, new List<Recipe>());
-
-        // Act
-        blueprint.AddIngredient(recipe);
-    }
-
-    // Тесты для метода ChangeIngredientWeight
-
-    [TestMethod]
-    public void ChangeIngredientWeight_ShouldChangeWeight_WhenIngredientIsInIncluded()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Pepperoni", 2.0m, IngredientType.Meat);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Pepperoni Pizza", 15m, new List<Recipe> { recipe });
-
-        // Act
-        blueprint.ChangeIngredientWeight(recipe, 75);
-
-        // Assert
-        var updatedRecipe = blueprint.Included.FirstOrDefault(i => i.Equals(recipe));
-        Assert.IsNotNull(updatedRecipe);
-        Assert.AreEqual(75, updatedRecipe.Weight);
-    }
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void ChangeIngredientWeight_ShouldThrowException_WhenIngredientIsNotInIncluded()
-    {
-        // Arrange
-        var ingredient = new Ingredient("Mushroom", 1.0m, IngredientType.Vegetable);
-        var recipe = new Recipe(ingredient, 50, RecipeType.Base);
-        var blueprint = new Blueprint("Mushroom Pizza", 12m, new List<Recipe> { recipe });
-
-        var fakeIngredient = new Ingredient("Potato", 1.0m, IngredientType.Vegetable);
-        var fakeRecipe = new Recipe(fakeIngredient, 50, RecipeType.Base);
-        
-        // Act
-        blueprint.ChangeIngredientWeight(fakeRecipe, 75);
+        // Assert second recipe
+        var secondRecipe = blueprint.Recipes.Last();
+        Assert.AreEqual(2, secondRecipe.Id, "Second recipe ID does not match.");
+        Assert.AreEqual(101, secondRecipe.IngredientId, "Second recipe ingredient ID does not match.");
+        Assert.AreEqual(1.50m, secondRecipe.CostPer100g, "Second recipe cost per 100g does not match.");
+        Assert.AreEqual(50, secondRecipe.Weight, "Second recipe weight does not match.");
+        Assert.AreEqual("Tomato Sauce", secondRecipe.Name, "Second recipe name does not match.");
+        Assert.AreEqual(RecipeType.Base, secondRecipe.Type, "Second recipe type does not match.");
+        Assert.AreEqual(IngredientType.Vegetable, secondRecipe.IngredientType, "Second recipe ingredient type does not match.");
     }
 }

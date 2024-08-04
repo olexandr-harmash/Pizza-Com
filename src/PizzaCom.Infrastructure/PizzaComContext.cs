@@ -1,12 +1,13 @@
 ﻿using PizzaCom.Infrastructure.EntityConfiguration;
+using PizzaCom.Infrastructure.Models;
 
 namespace PizzaCom.Infrastructure;
 
 public class PizzaComContext : DbContext, IUnitOfWork
 {
-    public DbSet<Recipe> Recipes { get; set; }
-    public DbSet<Blueprint> Blueprints { get; set; }
-    public DbSet<Ingredient> Ingredients { get; set; }
+    public DbSet<RecipeEntity> Recipes { get; set; }
+    public DbSet<BlueprintEntity> Blueprints { get; set; }
+    public DbSet<IngredientEntity> Ingredients { get; set; }
     public DbSet<RecipeType> RecipeTypes { get; set; }
     public DbSet<IngredientType> IngredientTypes { get; set; }
 
@@ -20,13 +21,6 @@ public class PizzaComContext : DbContext, IUnitOfWork
         modelBuilder.ApplyConfiguration(new IngredientTypeEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RecipeEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RecipeTypeEntityTypeConfiguration());
-
-        // modelBuilder.Entity<Blueprint>()
-        // .HasMany(e => e.IngredientTest)
-        // .WithMany(e => e.BlueprintTest)
-        // .UsingEntity<Recipe>(
-        //     l => l.HasOne(e => e.IngredientTest).WithMany(e => e.RecipeBlueprintTest).HasForeignKey(e => e.IngredientForeignKey),
-        //     r => r.HasOne(e => e.BlueprintTest).WithMany(e => e.RecipeBlueprintTest).HasForeignKey(e => e.BlueprintForeignKey));
     }
 
     public Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)

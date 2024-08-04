@@ -1,4 +1,4 @@
-using PizzaCom.API.Application;
+using PizzaCom.Infrastructure.Repositories;
 
 namespace PizzaCom.API.Extensions;
 

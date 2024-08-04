@@ -11,6 +11,7 @@ class RecipeTypeEntityTypeConfiguration
             .ValueGeneratedNever();
 
         recipeTypeConfiguration.Property(r => r.Name)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .IsRequired();
     }
 }

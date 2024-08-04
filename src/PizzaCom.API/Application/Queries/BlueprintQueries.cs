@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using PizzaCom.API.Application;
-using PizzaCom.API.Models;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using PizzaCom.Infrastructure.Repositories;
 
 namespace PizzaCom.API.Queries;
 
@@ -13,17 +12,20 @@ public class BlueprintQueries : IBlueprintQueries
 
     private BlueprintFactory _factory;
 
-    ILogger<BlueprintQueries> _logger;
+    private ILogger<BlueprintQueries> _logger;
+
+    private IBlueprintRepository _repository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BlueprintQueries"/> class.
     /// </summary>
     /// <param name="context">The database context to use.</param>
-    public BlueprintQueries(PizzaComContext context, BlueprintFactory factory, ILogger<BlueprintQueries> logger)
+    public BlueprintQueries(PizzaComContext context, BlueprintFactory factory, ILogger<BlueprintQueries> logger, IBlueprintRepository repository)
     {
         _context = context;
         _factory = factory;
         _logger = logger;
+        _repository = repository;
     }
 
     /// <summary>
@@ -34,15 +36,21 @@ public class BlueprintQueries : IBlueprintQueries
     /// <exception cref="KeyNotFoundException">Thrown when the blueprint is not found.</exception>
     public async Task<BlueprintBuilderModel> GetBlueprintBuilder(BlueprintOptions options)
     {
-        var blueprint = await _context.Blueprints
-            .Include(b => b.Recipe)
-            .ThenInclude(r => r.Ingredient)
-            .ThenInclude(i => i.Type)
-            .Include(b => b.Recipe)           
-            .ThenInclude(r => r.Type)      
-            .FirstOrDefaultAsync(b => b.Id == options.Id);
+        var blueprint = await _repository.GetAsync(options.Id);
+
+        if (blueprint is null)
+        {
+            //TODO: exception classes and exception handler in api
+            throw new KeyNotFoundException("Blueprint not found.");
+        }
         
-        var builtBlueprint = await _factory.BlueprintWithOptions(options, blueprint);
+        var builtBlueprint = _factory.BlueprintWithOptions(options, blueprint);
+
+        Func<Ingredient, IngredientDTO> toDto = i => new IngredientDTO
+        {
+            Id = i.Id,
+            Name = i.Name
+        };
 
         // Вернуть модель с данными
         return new BlueprintBuilderModel
@@ -51,12 +59,8 @@ public class BlueprintQueries : IBlueprintQueries
             Name = builtBlueprint.Name,
             Price = builtBlueprint.BaseCost,
             AddDoubleMeatOption = _factory.GetOptionDetails(builtBlueprint, nameof(AddDoubleMeatOption)),
-            BlueprintBuilderRecipeItems = builtBlueprint.Recipe.Select(r => new BlueprintBuilderRecipeItem
-            {
-                Id = r.Ingredient.Id,
-                Name = r.Ingredient.Name,
-                IsExcluded = options.ExcludedIngredientIds.Contains(r.Ingredient.Id)
-            }).ToList()
+            Included = builtBlueprint.Included.Select(toDto).ToList(),
+            Excluded = builtBlueprint.Excluded.Select(toDto).ToList()
         };
     }
 
@@ -74,7 +78,7 @@ public class BlueprintQueries : IBlueprintQueries
                 Id = b.Id,
                 Name = b.Name,
                 Price = b.BaseCost,
-                Recipe = string.Join(", ", b.Recipe.Select(r => r.Ingredient.Name.ToLower()))
+                Recipe = string.Join(", ", b.Recipes.Select(r => r.Ingredient.Name.ToLower()))
             })
             .ToListAsync();
     }
@@ -83,6 +87,6 @@ public class BlueprintQueries : IBlueprintQueries
     /// Gets a list of ingredients.
     /// </summary>
     /// <returns>A list of <see cref="BlueprintBuilderRecipeItem"/> objects representing the ingredients.</returns>
-    public async Task<List<BlueprintBuilderRecipeItem>> GetIngredients() =>
-        await _context.Ingredients.Select(i => new BlueprintBuilderRecipeItem { Id = i.Id, Name = i.Name }).ToListAsync();
+    public async Task<List<IngredientDTO>> GetIngredients() =>
+        await _context.Ingredients.Select(i => new IngredientDTO{Id = i.Id, Name = i.Name}).ToListAsync();
 }

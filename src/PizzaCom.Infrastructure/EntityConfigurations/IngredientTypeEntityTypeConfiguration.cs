@@ -11,6 +11,7 @@ class IngredientTypeEntityTypeConfiguration
             .ValueGeneratedNever();
 
         ingredientTypeConfiguration.Property(bp => bp.Name)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .IsRequired();
     }
 }

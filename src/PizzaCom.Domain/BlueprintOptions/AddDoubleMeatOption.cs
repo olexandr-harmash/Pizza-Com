@@ -6,7 +6,7 @@ using PizzaCom.API.Domain.BlueprintOptions;
 /// </summary>
 public class AddDoubleMeatOption : BlueprintOption
 {
-    private readonly List<Recipe> _meatIngredients;
+    private readonly List<Ingredient> _meatIngredients;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AddDoubleMeatOption"/> class.
@@ -14,8 +14,8 @@ public class AddDoubleMeatOption : BlueprintOption
     /// <param name="blueprint">The blueprint to which the option is applied.</param>
     public AddDoubleMeatOption(Blueprint blueprint) : base(blueprint)
     {
-        _meatIngredients = _blueprint.Recipe
-            .Where(r => r.Ingredient.Type.Equals(IngredientType.Meat))
+        _meatIngredients = _blueprint.Included
+            .Where(r => r.Type.Equals(IngredientType.Meat))
             .ToList();
     }
 
@@ -27,7 +27,7 @@ public class AddDoubleMeatOption : BlueprintOption
     /// <summary>
     /// Gets the price of the option, calculated based on the meat ingredients in the recipe.
     /// </summary>
-    public override decimal Price => _meatIngredients.Sum(i => i.Ingredient.Cost * i.Weight / 100);
+    public override decimal Price => _meatIngredients.Sum(i => i.Cost);
 
     /// <summary>
     /// Gets a value indicating whether the option is available based on the presence of meat ingredients.

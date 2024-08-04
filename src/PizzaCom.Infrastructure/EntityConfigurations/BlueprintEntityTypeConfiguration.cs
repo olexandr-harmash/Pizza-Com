@@ -1,28 +1,29 @@
+using PizzaCom.Infrastructure.Models;
+
 namespace PizzaCom.Infrastructure.EntityConfiguration;
 
 class BlueprintEntityTypeConfiguration
-    : IEntityTypeConfiguration<Blueprint>
+    : IEntityTypeConfiguration<BlueprintEntity>
 {
-    public void Configure(EntityTypeBuilder<Blueprint> blueprintConfiguration)
+    public void Configure(EntityTypeBuilder<BlueprintEntity> blueprintConfiguration)
     {
         blueprintConfiguration.ToTable("blueprint");
-
-        blueprintConfiguration.Ignore(b => b.DomainEvents);
 
         blueprintConfiguration.Property(b => b.Id)
             .UseHiLo("blueprintseq");
 
         blueprintConfiguration.Property(b => b.Name)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .IsRequired();
 
-        blueprintConfiguration.Property(b => b.BaseCost);
+        blueprintConfiguration.Property(b => b.BaseCost)
+            .IsRequired();
 
-        blueprintConfiguration.HasMany("_ingredients")
-            .WithMany("_blueprints")
-            .UsingEntity(
-                typeof(Recipe), 
-                l => l.HasOne("Ingredient").WithMany("_recipe").HasForeignKey("_ingredientId"),
-                r => r.HasOne("_blueprint").WithMany("Recipe").HasForeignKey("_blueprintId")
+        blueprintConfiguration.HasMany(b => b.Ingredients)
+            .WithMany(i => i.Blueprints)
+            .UsingEntity<RecipeEntity>(
+                l => l.HasOne(r => r.Ingredient).WithMany(i => i.Recipe).HasForeignKey(r => r.IngredientId),
+                r => r.HasOne(r => r.Blueprint).WithMany(b => b.Recipes).HasForeignKey(r => r.BlueprintId)
             );
     }
 }

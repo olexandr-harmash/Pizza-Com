@@ -56,7 +56,12 @@ public class BlueprintBuilderModel
     /// <summary>
     /// Gets the list of recipe items for the blueprint.
     /// </summary>
-    public List<BlueprintBuilderRecipeItem> BlueprintBuilderRecipeItems { get; init; }
+    public List<IngredientDTO> Included { get; init; }
+
+    /// <summary>
+    /// Gets the list of excluded recipe items for the blueprint.
+    /// </summary>
+    public List<IngredientDTO> Excluded { get; init; }
 }
 
 public class OptionDetails
@@ -80,7 +85,7 @@ public class OptionDetails
 /// <summary>
 /// Represents an item in a blueprint builder recipe.
 /// </summary>
-public class BlueprintBuilderRecipeItem
+public class IngredientDTO
 {
     /// <summary>
     /// Gets the ID of the ingredient.
@@ -91,6 +96,4 @@ public class BlueprintBuilderRecipeItem
     /// Gets the name of the ingredient.
     /// </summary>
     public string Name { get; init; }
-
-    public bool IsExcluded { get; init; }
 }

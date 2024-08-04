@@ -1,5 +1,3 @@
-using PizzaCom.Domain.SeedWork;
-
 namespace PizzaCom.Domain.AggregatesModel;
 
  /// <summary>
