@@ -24,7 +24,10 @@ public class Boilerplate : Entity, IAggregateRoot
     public string Title => _title;
 
     public string Recipe => 
-        string.Join(", ", _components.Select(c => c.Name.ToLower()));
+        string.Join(", ", _components
+            .Where(c => c.ComponentType.Equals(ComponentType.Default))
+            .Select(c => c.Name.ToLower()));
+
 
     public decimal Price => _price;
 

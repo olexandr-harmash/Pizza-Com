@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualBasic;
-using PizzaCom.API.Factories;
+using PizzaCom.Domain.Extensions;
+using PizzaCom.Domain.AggregatesModel;
 using PizzaCom.Domain.BoilerplateOptionServices;
+using PizzaCom.Domain.Models;
+using AutoMapper;
 //using PizzaCom.Infrastructure.Repositories;
 
 namespace PizzaCom.API.Queries;
@@ -11,12 +15,11 @@ namespace PizzaCom.API.Queries;
 /// </summary>
 public class BlueprintQueries : IBlueprintQueries
 {
-    private PizzaComContext _context;
+    private readonly PizzaComContext _context;
+    private readonly IServiceProvider _provider;
+    private readonly IMapper _mapper;
+    private readonly ILogger<BlueprintQueries> _logger;
 
-
-    private ILogger<BlueprintQueries> _logger;
-
-    private IBoilerplateFactory _factory;
 
     //private IBlueprintRepository _repository;
 
@@ -24,54 +27,50 @@ public class BlueprintQueries : IBlueprintQueries
     /// Initializes a new instance of the <see cref="BlueprintQueries"/> class.
     /// </summary>
     /// <param name="context">The database context to use.</param>
-    public BlueprintQueries(PizzaComContext context, ILogger<BlueprintQueries> logger, IBoilerplateFactory factory)
+    public BlueprintQueries(PizzaComContext context, ILogger<BlueprintQueries> logger, IServiceProvider provider, IMapper mapper)
     {
         _context = context;
         _logger = logger;
-        _factory = factory;
+        _mapper = mapper;
+        _provider = provider;
     }
 
-    public async Task<BlueprintBuilderModel> GetBlueprintBuilder(BuildBoilerplateDTO OptionServices)
-    {   
-        var boilerplate = await _context.Boilerplates
-            .Include(b => b.Components)
-                .ThenInclude(c => c.ComponentType)
-            .Include(b => b.Components)
-                .ThenInclude(c => c.Ingredient)
-                    .ThenInclude(i => i.IngredientType)
-            .FirstOrDefaultAsync(b => b.Id == OptionServices.Id);
+    public async Task<PizzaTemplateDTO> GetBlueprintBuilder(CreateOrUpdatePizzaTemplateRequestDTO request)
+    {
+        // Получение деталей шаблона пиццы
+        var boilerplate = await GetBoilerplateDetailsByIdOrThrowExceptionAsync(request.PizzaTemplateId);
 
-    var components = await _context.Components
-            .Include(c => c.ComponentType)
-            .Include(c => c.Ingredient)
-            .ThenInclude(i => i.IngredientType)
-            .Where(c => OptionServices.Components.Select(d => d.Id).Contains(c.Id))
-            .ToListAsync();
-            _logger.LogInformation($"{string.Join(",", components.Select(i => i.Id.ToString()))}");
-             _logger.LogInformation($"{string.Join(",", OptionServices.Components.Select(i => i.Id.ToString()))}");
+        var optionServiceInfo = _provider.GetRequiredService<IOptions<OptionServiceInfo>>().Value;
 
+        var appliedOptions = request.AppliedOptions
+            .Select(o => _provider.ExploreOptionByKeyFromProvider(boilerplate, o.OptionName, o.TimesApplied))
+            .ToList();
 
-        var service =  new BoilerplateOptionBuilderService(boilerplate, OptionServices, _context);
-        service.InitializeAllOptions(OptionServices.Options);
-        var builtBoilerplate = await service.ConfigureBoilerplate(OptionServices);
-
-        return new BlueprintBuilderModel
+        var availableOptions = optionServiceInfo.OptionServiceTypes.Keys
+            .Except(request.GetKeys())
+            .Select(key => _provider.ExploreOptionByKeyFromProvider(boilerplate, key, 1))
+            .Where(o => o.IsApplicable)
+            .ToList();
+        
+        foreach (var ingredient in request.Ingredients)
         {
-            Id = builtBoilerplate.Id,
-            Name = builtBoilerplate.Title,
-            Price = builtBoilerplate.Price,
-            Recipe = builtBoilerplate.Recipe,
-            Options = service.GetAvailableOptions(),
-            Ingredients = builtBoilerplate.Components
-                .Select(c => new ComponentDto 
-                { 
-                    Id = c.Id, 
-                    Name = c.Name,
-                    Type = c.IngredientType.Name,
-                    Selected = OptionServices.Components.Any(d => d.Id == c.Id)
-                })
-                .ToList(),
+            var found = boilerplate.Components.First(c => c.IngredientId.Equals(ingredient.IngredientId));
+
+            boilerplate.AddComponent(found);
+        }       
+        
+        appliedOptions.ForEach(o => o.Apply());
+  
+        var boilerplateBuiltModel = _mapper.Map<PizzaTemplateDTO>(boilerplate);
+        boilerplateBuiltModel.AppliedOptions = _mapper.Map<List<AppliedOptionDTO>>(appliedOptions);
+        boilerplateBuiltModel.Options = _mapper.Map<List<OptionDTO>>(availableOptions);
+        boilerplateBuiltModel.Summary = new SummaryDTO 
+        {
+            AppliedOptions = _mapper.Map<List<AppliedOptionSummaryDTO>>(appliedOptions),
+            SelectedIngredients = _mapper.Map<List<AppliedIngredientSummaryDTO>>(boilerplate.ComponentsWithMultiplier.Keys)
         };
+
+        return boilerplateBuiltModel;
     }
 
     public async Task<List<BlueprintCard>> GetBlueprintCards()
@@ -83,9 +82,44 @@ public class BlueprintQueries : IBlueprintQueries
             {
                 Id = b.Id,
                 Name = b.Title,
-                Price = b.Price,
-                Recipe = b.Recipe
+                Price = b.Price
             })
             .ToListAsync();
+    }
+
+    public async Task<BoilerplateDetails> GetBoilerplateDetails(int id)
+    {   
+        var boilerplate = await GetBoilerplateDetailsByIdOrThrowExceptionAsync(id);
+
+        var optionServiceInfo = _provider.GetRequiredService<IOptions<OptionServiceInfo>>().Value;
+
+        var applicableOptions = optionServiceInfo.OptionServiceTypes.Keys
+            .Select(k => _provider.ExploreOptionByKeyFromProvider(boilerplate, k, 1))
+            .Where(option => option.IsApplicable)
+            .ToList();
+
+        // Использование AutoMapper для маппинга данных
+        var boilerplateDetails = _mapper.Map<BoilerplateDetails>(boilerplate);
+        boilerplateDetails.Options = _mapper.Map<List<OptionDetailDto>>(applicableOptions);
+
+        return boilerplateDetails;
+    }
+
+    private async Task<Boilerplate> GetBoilerplateDetailsByIdOrThrowExceptionAsync(int id)
+    {
+        var result = await _context.Boilerplates
+            .Include(b => b.Components)
+                .ThenInclude(c => c.ComponentType)
+            .Include(b => b.Components)
+                .ThenInclude(c => c.Ingredient)
+                    .ThenInclude(i => i.IngredientType)
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (result == null)
+        {
+            throw new Exception("Boilerplate not found");
+        }
+
+        return result;
     }
 }

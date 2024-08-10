@@ -6,5 +6,7 @@ public interface IBlueprintQueries
 {
     Task<List<BlueprintCard>> GetBlueprintCards();
 
-    Task<BlueprintBuilderModel> GetBlueprintBuilder(BuildBoilerplateDTO OptionServices);
+    Task<BoilerplateDetails> GetBoilerplateDetails(int id);
+
+    Task<PizzaTemplateDTO> GetBlueprintBuilder(CreateOrUpdatePizzaTemplateRequestDTO OptionServices);
 }

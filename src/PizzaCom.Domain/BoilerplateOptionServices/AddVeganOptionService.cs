@@ -12,7 +12,7 @@ public class AddVeganOptionService : BoilerplateOptionService
     /// Initializes a new instance of the <see cref="AddVeganOptionService"/> class.
     /// </summary>
     /// <param name="boilerplate">The boilerplate to which the OptionService is applied.</param>
-    public AddVeganOptionService(Boilerplate boilerplate) : base(boilerplate)
+    public AddVeganOptionService(Boilerplate boilerplate, int? times) : base(boilerplate, 1)
     {
         _meatComponents = FindComponentsByIngredientType(IngredientType.Meat);
     }
@@ -39,7 +39,7 @@ public class AddVeganOptionService : BoilerplateOptionService
 
     public override int Times => _times;
 
-    public override int MaxTimes => _times; // This OptionService can be applied only once.
+    public override int MaxTimes => 1; // This OptionService can be applied only once.
 
     /// <summary>
     /// Applies the OptionService by removing all meat components from the current components of the boilerplate.

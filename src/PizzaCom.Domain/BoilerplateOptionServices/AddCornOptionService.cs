@@ -12,7 +12,7 @@ public class AddCornOptionService : BoilerplateOptionService
     /// Initializes a new instance of the <see cref="AddCornOptionService"/> class.
     /// </summary>
     /// <param name="boilerplate">The blueprint to which the OptionService is applied.</param>
-    public AddCornOptionService(Boilerplate boilerplate, int times = 1) : base(boilerplate, times)
+    public AddCornOptionService(Boilerplate boilerplate, int times) : base(boilerplate, times)
     {
         _cornComponent = FindRecipeByName(IngredientVariant.Corn.Name);
     }
@@ -25,7 +25,7 @@ public class AddCornOptionService : BoilerplateOptionService
     /// <summary>
     /// Gets the price of the OptionService, calculated based on the default corn ingredients in the recipe.
     /// </summary>
-    public override decimal Cost => _cornComponent.Cost;
+    public override decimal Cost => _cornComponent.Cost * _times;
 
     /// <summary>
     /// Gets a value indicating whether the OptionService is available based on the presence of default corn ingredients.

@@ -33,31 +33,31 @@ public class BlueprintCard
 /// <summary>
 /// Represents a builder for creating or modifying blueprints.
 /// </summary>
-public class BlueprintBuilderModel
+public class BoilerplateBuilderModel : BoilerplateDetails
 {
-    /// <summary>
-    /// Gets the ID of the blueprint.
-    /// </summary>
+
+    public List<OptionDto2> Options { get; set; }
+
+
+}
+
+public class BoilerplateDetails
+{
     public int Id  { get; init; }
 
-    /// <summary>
-    /// Gets the name of the blueprint.
-    /// </summary>
-    public string Name { get; init; }
+    public string Name  { get; init; }
 
-    /// <summary>
-    /// Gets the base price of the blueprint.
-    /// </summary>
     public decimal Price { get; init; }
 
-    public string Recipe { get; init; }
+    public List<OptionDetailDto> Options { get; set; }
 
-    public List<OptionDto> Options { get; init; }
+    public List<IngredientDTO> Ingredients { get; init; }
+}
 
-    /// <summary>
-    /// Gets the list of recipe items for the blueprint.
-    /// </summary>
-    public List<ComponentDto> Ingredients { get; init; }
+public class OptionDetailDto 
+{
+    public string Name { get; set; }
+    public decimal Cost { get; set; }
 }
 
 public class OptionServiceDetails
@@ -81,7 +81,7 @@ public class OptionServiceDetails
 /// <summary>
 /// Represents an item in a blueprint builder recipe.
 /// </summary>
-public class IngredientDTO
+public class IngredientDTO2
 {
     /// <summary>
     /// Gets the ID of the ingredient.
@@ -92,6 +92,4 @@ public class IngredientDTO
     /// Gets the name of the ingredient.
     /// </summary>
     public string Name { get; init; }
-
-    public bool Selected { get; init; }
 }

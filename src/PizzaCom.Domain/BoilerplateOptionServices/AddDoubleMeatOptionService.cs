@@ -11,7 +11,7 @@ public class AddDoubleMeatOptionService : BoilerplateOptionService
     /// Initializes a new instance of the <see cref="AddDoubleMeatOptionService"/> class.
     /// </summary>
     /// <param name="boilerplate">The blueprint to which the OptionService is applied.</param>
-    public AddDoubleMeatOptionService(Boilerplate boilerplate, int times = 1) : base(boilerplate, times)
+    public AddDoubleMeatOptionService(Boilerplate boilerplate, int times) : base(boilerplate, times)
     {
         _defaultMeatComponents = FindComponentsByTypeAndIngredientType(ComponentType.Default, IngredientType.Meat);
     }
@@ -26,7 +26,7 @@ public class AddDoubleMeatOptionService : BoilerplateOptionService
     /// Gets the price of the OptionService, calculated based on the default meat ingredients in the recipe.
     /// </summary>
     public override decimal Cost => 
-        _defaultMeatComponents.Sum(c => c.Key.Cost);
+        _defaultMeatComponents.Sum(c => c.Key.Cost) * _times;
 
     /// <summary>
     /// Gets a value indicating whether the OptionService is available based on the presence of default meat ingredients.

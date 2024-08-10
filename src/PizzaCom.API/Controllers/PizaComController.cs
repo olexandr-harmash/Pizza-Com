@@ -28,7 +28,7 @@ public class PizzaComController : ControllerBase
     /// <param name="OptionServices">The blueprint OptionServices.</param>
     /// <returns>A blueprint builder model.</returns>
     [HttpPost("blueprints/builder")]
-    public async Task<ActionResult<BlueprintBuilderModel>> GetBlueprintBuilder([FromBody] BuildBoilerplateDTO OptionServices,
+    public async Task<ActionResult<BuildBoilerplateDTO>> GetBlueprintBuilder([FromBody] CreateOrUpdatePizzaTemplateRequestDTO OptionServices,
     [FromServices] PizzaComServices services)
     {
         var blueprintBuilder = await services.Queries.GetBlueprintBuilder(OptionServices);
@@ -39,13 +39,27 @@ public class PizzaComController : ControllerBase
         return Ok(blueprintBuilder);
     }
 
+    [HttpGet("blueprints/details/{id}")]
+    public async Task<ActionResult<BoilerplateDetails>> GetBlueprintDetails([FromRoute] int id,
+        [FromServices] PizzaComServices services)
+    {
+        var boilerplateDetails = await services.Queries.GetBoilerplateDetails(id);
+        
+        if (boilerplateDetails == null)
+        {
+            return NotFound();
+        }
+        
+        return Ok(boilerplateDetails);
+    }
+
     [HttpPost("blueprints/")]
-    public async Task<ActionResult<BlueprintBuilderModel>> AddTestBlueprint([FromServices] PizzaComServices services)
+    public async Task<ActionResult<BoilerplateDetails>> AddTestBlueprint([FromServices] PizzaComServices services)
     {   
         var components = new List<Component>
         {
             // Основа пиццы
-            new Component(IngredientVariant.GlutenCrust.Id, ComponentType.Default.Id, 1),
+            new Component(IngredientVariant.GlutenCrust.Id, ComponentType.Default.Id, 100),
 
             // Ингредиенты
             new Component(IngredientVariant.Mozzarella.Id, ComponentType.Default.Id, 150),
@@ -54,7 +68,8 @@ public class PizzaComController : ControllerBase
             // Опционально добавляем базилик
             // Убедитесь, что у вас есть базилик в списке ингредиентов, если нет, добавьте его
             new Component(IngredientVariant.Basil.Id, ComponentType.Optional.Id, 10),
-            new Component(IngredientVariant.GlutenFreeCrust.Id, ComponentType.Optional.Id, 1),
+            new Component(IngredientVariant.GlutenFreeCrust.Id, ComponentType.Optional.Id, 100),
+            new Component(IngredientVariant.Corn.Id, ComponentType.Optional.Id, 20),
         };
 
         // Создание пиццы
@@ -76,10 +91,10 @@ public class PizzaComController : ControllerBase
     /// Gets a list of ingredients.
     /// </summary>
     /// <returns>A list of ingredients.</returns>
-    [HttpGet("ingredients")]
-    public async Task<ActionResult<List<IngredientDTO>>> GetIngredients([FromServices] PizzaComServices services)
-    {
-       // var ingredients = await services.Queries.GetIngredients();
-        return Ok();
-    }
+   // [HttpGet("ingredients")]
+   // public async Task<ActionResult<List<IngredientDTO>>> GetIngredients([FromServices] PizzaComServices services)
+   // {
+   //    // var ingredients = await services.Queries.GetIngredients();
+   //     return Ok();
+   // }
 }

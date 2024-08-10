@@ -12,7 +12,7 @@ public class AddCheeseRimOptionService : BoilerplateOptionService
     /// Initializes a new instance of the <see cref="AddCheeseRimOptionService"/> class.
     /// </summary>
     /// <param name="boilerplate">The blueprint to which the OptionService is applied.</param>
-    public AddCheeseRimOptionService(Boilerplate boilerplate, int times = 1) : base(boilerplate, times)
+    public AddCheeseRimOptionService(Boilerplate boilerplate, int times) : base(boilerplate, times)
     {
         _defaultDairyComponents = FindComponentsByTypeAndIngredientType(ComponentType.Default, IngredientType.Dairy);
     }
@@ -25,7 +25,7 @@ public class AddCheeseRimOptionService : BoilerplateOptionService
     /// <summary>
     /// Gets the price of the OptionService, calculated based on the dairy ingredients in the recipe.
     /// </summary>
-    public override decimal Cost => _defaultDairyComponents.Sum(c => c.Key.Cost) * 0.25m;
+    public override decimal Cost => _defaultDairyComponents.Sum(c => c.Key.Cost) * 0.25m * _times;
 
     /// <summary>
     /// Gets a value indicating whether the OptionService is available based on the presence of dairy ingredients.

@@ -3,20 +3,20 @@
 /// </summary>
 public class AddGlutenFreeCrustOptionService : BoilerplateOptionService
 {   
-    private readonly KeyValuePair<Component, float> _glutenCrustComponent;
-    private readonly KeyValuePair<Component, float> _glutenFreeCrustComponent;
+    private readonly Component? _glutenCrustComponent;
+    private readonly Component? _glutenFreeCrustComponent;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AddGlutenFreeCrustOptionService"/> class.
     /// </summary>
     /// <param name="boilerplate">The blueprint to which the OptionService is applied.</param>
-    public AddGlutenFreeCrustOptionService(Boilerplate boilerplate, int times = 1) : base(boilerplate)
+    public AddGlutenFreeCrustOptionService(Boilerplate boilerplate, int? times) : base(boilerplate, 1)
     {   
         // Initialize the gluten-free crust component
-        _glutenFreeCrustComponent = FindComponentByName(IngredientVariant.GlutenCrust.Name);
+        _glutenCrustComponent = FindRecipeByName(IngredientVariant.GlutenCrust.Name);
 
         // Initialize the gluten-free crust component
-        _glutenFreeCrustComponent = FindComponentByName(IngredientVariant.GlutenFreeCrust.Name);
+        _glutenFreeCrustComponent = FindRecipeByName(IngredientVariant.GlutenFreeCrust.Name);
     }
 
     /// <summary>
@@ -27,18 +27,19 @@ public class AddGlutenFreeCrustOptionService : BoilerplateOptionService
     /// <summary>
     /// Gets the price of the OptionService, calculated based on the gluten-free crust component.
     /// </summary>
-    public override decimal Cost => _glutenFreeCrustComponent.Key.Cost - _glutenCrustComponent.Key.Cost;
+    public override decimal Cost => 
+        _glutenFreeCrustComponent.Cost - _glutenCrustComponent.Cost;
 
     /// <summary>
     /// Gets a value indicating whether the OptionService is available based on the presence of the gluten-free crust component.
     /// </summary>
     public override bool IsApplicable => 
-        _glutenCrustComponent.Key != null &&
-        _glutenFreeCrustComponent.Key != null;
+        _glutenCrustComponent != null &&
+        _glutenFreeCrustComponent != null;
 
     public override int Times => _times;
 
-    public override int MaxTimes => _times;
+    public override int MaxTimes => 1;
 
     public override void Apply()
     {
@@ -50,8 +51,8 @@ public class AddGlutenFreeCrustOptionService : BoilerplateOptionService
         SetTotalPrice(Cost);
 
         // Add the gluten-free crust component to the pizza
-        RemoveComponent(_glutenCrustComponent.Key);
+        RemoveComponent(_glutenCrustComponent);
 
-        AddComponent(_glutenFreeCrustComponent.Key);
+        AddComponent(_glutenFreeCrustComponent);
     }
 }
