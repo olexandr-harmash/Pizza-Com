@@ -1,4 +1,6 @@
-using PizzaCom.API.Domain.BlueprintOptions;
+
+using PizzaCom.Domain.AggregatesModel;
+using PizzaCom.Domain.BoilerplateOptionServices;
 
 namespace PizzaCom.API.Queries;
 
@@ -48,37 +50,31 @@ public class BlueprintBuilderModel
     /// </summary>
     public decimal Price { get; init; }
 
-    /// <summary>
-    /// Gets a value indicating whether the double meat option is available.
-    /// </summary>
-    public OptionDetails? AddDoubleMeatOption { get; init; }
+    public string Recipe { get; init; }
+
+    public List<OptionDto> Options { get; init; }
 
     /// <summary>
     /// Gets the list of recipe items for the blueprint.
     /// </summary>
-    public List<IngredientDTO> Included { get; init; }
-
-    /// <summary>
-    /// Gets the list of excluded recipe items for the blueprint.
-    /// </summary>
-    public List<IngredientDTO> Excluded { get; init; }
+    public List<ComponentDto> Ingredients { get; init; }
 }
 
-public class OptionDetails
+public class OptionServiceDetails
 {
     public string Name  { get; init; }
 
     public decimal Price { get; init; }
 
-    public OptionDetails(BlueprintOption option)
+    public OptionServiceDetails(BoilerplateOptionService OptionService)
     {
-        if (option == null)
+        if (OptionService == null)
         {
-            throw new ArgumentNullException(nameof(option));
+            throw new ArgumentNullException(nameof(OptionService));
         }
 
-        Name = option.Name;
-        Price = option.Price;
+        Name = OptionService.Name;
+        Price = OptionService.Cost;
     }
 }
 
@@ -96,4 +92,6 @@ public class IngredientDTO
     /// Gets the name of the ingredient.
     /// </summary>
     public string Name { get; init; }
+
+    public bool Selected { get; init; }
 }

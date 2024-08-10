@@ -31,37 +31,7 @@ namespace PizzaCom.Infrastructure.Migrations
             modelBuilder.HasSequence("recipeseq")
                 .IncrementsBy(10);
 
-            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.IngredientType", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ingredient_type", "pizza_com");
-                });
-
-            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.RecipeType", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("recipe_type", "pizza_com");
-                });
-
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.BlueprintEntity", b =>
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Boilerplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -69,8 +39,54 @@ namespace PizzaCom.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "blueprintseq");
 
-                    b.Property<decimal>("BaseCost")
+                    b.Property<decimal>("Price")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("boilerplate", "pizza_com");
+                });
+
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Component", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "recipeseq");
+
+                    b.Property<int>("BoilerplateId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ComponentTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoilerplateId");
+
+                    b.HasIndex("ComponentTypeId");
+
+                    b.HasIndex("IngredientId");
+
+                    b.ToTable("component", "pizza_com");
+                });
+
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.ComponentType", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -79,10 +95,10 @@ namespace PizzaCom.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("blueprint", "pizza_com");
+                    b.ToTable("component_type", "pizza_com");
                 });
 
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.IngredientEntity", b =>
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Ingredient", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,7 +106,7 @@ namespace PizzaCom.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "ingredientseq");
 
-                    b.Property<decimal>("Cost")
+                    b.Property<decimal>("CostPer100g")
                         .HasColumnType("numeric");
 
                     b.Property<int>("IngredientTypeId")
@@ -108,83 +124,60 @@ namespace PizzaCom.Infrastructure.Migrations
                     b.ToTable("ingredient", "pizza_com");
                 });
 
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.RecipeEntity", b =>
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.IngredientType", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "recipeseq");
-
-                    b.Property<int>("BlueprintId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RecipeTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("integer");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BlueprintId");
-
-                    b.HasIndex("IngredientId");
-
-                    b.HasIndex("RecipeTypeId");
-
-                    b.ToTable("recipe", "pizza_com");
+                    b.ToTable("ingredient_type", "pizza_com");
                 });
 
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.IngredientEntity", b =>
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Component", b =>
                 {
-                    b.HasOne("PizzaCom.Domain.AggregatesModel.IngredientType", "Type")
+                    b.HasOne("PizzaCom.Domain.AggregatesModel.Boilerplate", null)
+                        .WithMany("Components")
+                        .HasForeignKey("BoilerplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PizzaCom.Domain.AggregatesModel.ComponentType", "ComponentType")
+                        .WithMany()
+                        .HasForeignKey("ComponentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PizzaCom.Domain.AggregatesModel.Ingredient", "Ingredient")
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ComponentType");
+
+                    b.Navigation("Ingredient");
+                });
+
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Ingredient", b =>
+                {
+                    b.HasOne("PizzaCom.Domain.AggregatesModel.IngredientType", "IngredientType")
                         .WithMany()
                         .HasForeignKey("IngredientTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Type");
+                    b.Navigation("IngredientType");
                 });
 
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.RecipeEntity", b =>
+            modelBuilder.Entity("PizzaCom.Domain.AggregatesModel.Boilerplate", b =>
                 {
-                    b.HasOne("PizzaCom.Infrastructure.Models.BlueprintEntity", "Blueprint")
-                        .WithMany("Recipes")
-                        .HasForeignKey("BlueprintId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PizzaCom.Infrastructure.Models.IngredientEntity", "Ingredient")
-                        .WithMany("Recipe")
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PizzaCom.Domain.AggregatesModel.RecipeType", "Type")
-                        .WithMany()
-                        .HasForeignKey("RecipeTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Blueprint");
-
-                    b.Navigation("Ingredient");
-
-                    b.Navigation("Type");
-                });
-
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.BlueprintEntity", b =>
-                {
-                    b.Navigation("Recipes");
-                });
-
-            modelBuilder.Entity("PizzaCom.Infrastructure.Models.IngredientEntity", b =>
-                {
-                    b.Navigation("Recipe");
+                    b.Navigation("Components");
                 });
 #pragma warning restore 612, 618
         }

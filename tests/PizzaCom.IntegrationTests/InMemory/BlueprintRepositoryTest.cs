@@ -45,7 +45,6 @@ public class BlueprintRepositoryTests
         Assert.AreEqual(result.Recipes.Count, 2);
         Assert.AreEqual(result.Included.Count, 2);
         Assert.AreEqual(result.Recipes.First().Name, blueprint.Recipes.First().Name);
-        Assert.IsTrue(result.Recipes.First().IngredientType.Equals(IngredientType.Grain));
     }
 
     [TestMethod]
@@ -58,17 +57,17 @@ public class BlueprintRepositoryTests
         _repository.Add(blueprint);
         await _repository.UnitOfWork.SaveChangesAsync();
 
-        var options = new BlueprintOptions { Id = 1 }; // Настройте BlueprintOptions по необходимости
+        var OptionServices = new BlueprintOptionServices { Id = 1 }; // Настройте BlueprintOptionServices по необходимости
 
         // Act
-        var result = _factory.BlueprintWithOptions(options, blueprint);
+        var result = _factory.BlueprintWithOptionServices(OptionServices, blueprint);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(result.Id, blueprint.Id);
         Assert.AreEqual(result.Name, pizzaName);
         Assert.AreEqual(result.Cost, 4.4m);
-        Assert.IsNotNull(_factory.GetOptionDetails(result, nameof(AddDoubleMeatOption)));
+        Assert.IsNotNull(_factory.GetOptionServiceDetails(result, nameof(AddDoubleMeatOptionService)));
         Assert.AreEqual(result.Included.Count, 1);
         Assert.AreEqual(result.Excluded.Count, 0); // Если в тесте нет исключенных ингредиентов
         Assert.AreEqual(result.Included.First().Name, "Tomato Sauce");

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using PizzaCom.Infrastructure.Repositories;
+using Microsoft.VisualBasic;
+using PizzaCom.API.Factories;
+using PizzaCom.Domain.BoilerplateOptionServices;
+//using PizzaCom.Infrastructure.Repositories;
 
 namespace PizzaCom.API.Queries;
 
@@ -10,83 +13,79 @@ public class BlueprintQueries : IBlueprintQueries
 {
     private PizzaComContext _context;
 
-    private BlueprintFactory _factory;
 
     private ILogger<BlueprintQueries> _logger;
 
-    private IBlueprintRepository _repository;
+    private IBoilerplateFactory _factory;
+
+    //private IBlueprintRepository _repository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BlueprintQueries"/> class.
     /// </summary>
     /// <param name="context">The database context to use.</param>
-    public BlueprintQueries(PizzaComContext context, BlueprintFactory factory, ILogger<BlueprintQueries> logger, IBlueprintRepository repository)
+    public BlueprintQueries(PizzaComContext context, ILogger<BlueprintQueries> logger, IBoilerplateFactory factory)
     {
         _context = context;
-        _factory = factory;
         _logger = logger;
-        _repository = repository;
+        _factory = factory;
     }
 
-    /// <summary>
-    /// Gets the blueprint builder for the specified blueprint ID.
-    /// </summary>
-    /// <param name="blueprintId">The ID of the blueprint.</param>
-    /// <returns>A <see cref="BlueprintBuilder"/> object representing the blueprint.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown when the blueprint is not found.</exception>
-    public async Task<BlueprintBuilderModel> GetBlueprintBuilder(BlueprintOptions options)
-    {
-        var blueprint = await _repository.GetAsync(options.Id);
+    public async Task<BlueprintBuilderModel> GetBlueprintBuilder(BuildBoilerplateDTO OptionServices)
+    {   
+        var boilerplate = await _context.Boilerplates
+            .Include(b => b.Components)
+                .ThenInclude(c => c.ComponentType)
+            .Include(b => b.Components)
+                .ThenInclude(c => c.Ingredient)
+                    .ThenInclude(i => i.IngredientType)
+            .FirstOrDefaultAsync(b => b.Id == OptionServices.Id);
 
-        if (blueprint is null)
-        {
-            //TODO: exception classes and exception handler in api
-            throw new KeyNotFoundException("Blueprint not found.");
-        }
-        
-        var builtBlueprint = _factory.BlueprintWithOptions(options, blueprint);
+    var components = await _context.Components
+            .Include(c => c.ComponentType)
+            .Include(c => c.Ingredient)
+            .ThenInclude(i => i.IngredientType)
+            .Where(c => OptionServices.Components.Select(d => d.Id).Contains(c.Id))
+            .ToListAsync();
+            _logger.LogInformation($"{string.Join(",", components.Select(i => i.Id.ToString()))}");
+             _logger.LogInformation($"{string.Join(",", OptionServices.Components.Select(i => i.Id.ToString()))}");
 
-        Func<Ingredient, IngredientDTO> toDto = i => new IngredientDTO
-        {
-            Id = i.Id,
-            Name = i.Name
-        };
 
-        // Вернуть модель с данными
+        var service =  new BoilerplateOptionBuilderService(boilerplate, OptionServices, _context);
+        service.InitializeAllOptions(OptionServices.Options);
+        var builtBoilerplate = await service.ConfigureBoilerplate(OptionServices);
+
         return new BlueprintBuilderModel
         {
-            Id = builtBlueprint.Id,
-            Name = builtBlueprint.Name,
-            Price = builtBlueprint.BaseCost,
-            AddDoubleMeatOption = _factory.GetOptionDetails(builtBlueprint, nameof(AddDoubleMeatOption)),
-            Included = builtBlueprint.Included.Select(toDto).ToList(),
-            Excluded = builtBlueprint.Excluded.Select(toDto).ToList()
+            Id = builtBoilerplate.Id,
+            Name = builtBoilerplate.Title,
+            Price = builtBoilerplate.Price,
+            Recipe = builtBoilerplate.Recipe,
+            Options = service.GetAvailableOptions(),
+            Ingredients = builtBoilerplate.Components
+                .Select(c => new ComponentDto 
+                { 
+                    Id = c.Id, 
+                    Name = c.Name,
+                    Type = c.IngredientType.Name,
+                    Selected = OptionServices.Components.Any(d => d.Id == c.Id)
+                })
+                .ToList(),
         };
     }
 
-    /// <summary>
-    /// Gets a list of blueprint cards.
-    /// </summary>
-    /// <returns>A list of <see cref="BlueprintCard"/> objects.</returns>
     public async Task<List<BlueprintCard>> GetBlueprintCards()
     {
-        //Whithout pagination for proposes in small amount (30 max)
-        //TODO: select options support
-        return await _context.Blueprints
+        return await _context.Boilerplates
+            .Include(b => b.Components)
+                .ThenInclude(c => c.Ingredient)
             .Select(b => new BlueprintCard
             {
                 Id = b.Id,
-                Name = b.Name,
-                Price = b.BaseCost,
-                Recipe = string.Join(", ", b.Recipes.Select(r => r.Ingredient.Name.ToLower()))
+                Name = b.Title,
+                Price = b.Price,
+                Recipe = b.Recipe
             })
             .ToListAsync();
     }
-
-    /// <summary>
-    /// Gets a list of ingredients.
-    /// </summary>
-    /// <returns>A list of <see cref="BlueprintBuilderRecipeItem"/> objects representing the ingredients.</returns>
-    public async Task<List<IngredientDTO>> GetIngredients() =>
-        await _context.Ingredients.Select(i => new IngredientDTO{Id = i.Id, Name = i.Name}).ToListAsync();
 }

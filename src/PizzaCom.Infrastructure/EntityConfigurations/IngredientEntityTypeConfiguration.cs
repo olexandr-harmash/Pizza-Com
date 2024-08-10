@@ -1,25 +1,27 @@
-using PizzaCom.Infrastructure.Models;
+
 
 namespace PizzaCom.Infrastructure.EntityConfiguration;
 
 class IngredientEntityTypeConfiguration
-    : IEntityTypeConfiguration<IngredientEntity>
+    : IEntityTypeConfiguration<Ingredient>
 {
-    public void Configure(EntityTypeBuilder<IngredientEntity> ingredientConfiguration)
+    public void Configure(EntityTypeBuilder<Ingredient> ingredientConfiguration)
     {
         ingredientConfiguration.ToTable("ingredient");
 
-        ingredientConfiguration.Property(b => b.Id)
+        ingredientConfiguration.Property(i => i.Id)
             .UseHiLo("ingredientseq");
+
+        ingredientConfiguration.Ignore(i => i.DomainEvents);
 
         ingredientConfiguration.Property(i => i.Name)
             .HasMaxLength(200)
             .IsRequired();
 
-        ingredientConfiguration.Property(i => i.Cost)
+        ingredientConfiguration.Property(i => i.CostPer100g)
             .IsRequired();
 
-        ingredientConfiguration.HasOne(i => i.Type)
+        ingredientConfiguration.HasOne(i => i.IngredientType)
           .WithMany()
           .HasForeignKey(i => i.IngredientTypeId);
     }
