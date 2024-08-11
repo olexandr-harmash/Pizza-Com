@@ -12,6 +12,4 @@ public class PizzaComServices(
 {
     public ILogger<PizzaComServices> Logger { get; } = logger;
     public IBlueprintQueries Queries { get; } = queries;
-    public IBoilerplateRepository Repository { get; } = repository;
-    public PizzaComContext Context { get; } = context;
 }

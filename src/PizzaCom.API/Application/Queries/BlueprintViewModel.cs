@@ -1,95 +1,84 @@
-
-using PizzaCom.Domain.AggregatesModel;
-using PizzaCom.Domain.BoilerplateOptionServices;
-
 namespace PizzaCom.API.Queries;
 
-/// <summary>
-/// Represents a blueprint card with basic blueprint information.
-/// </summary>
-public class BlueprintCard
+public class BoilerplateDTO
 {
-    /// <summary>
-    /// Gets the ID of the blueprint.
-    /// </summary>
     public int Id  { get; init; }
-
-    /// <summary>
-    /// Gets the name of the blueprint.
-    /// </summary>
     public string Name { get; init; }
-
-    /// <summary>
-    /// Gets the recipe of the blueprint.
-    /// </summary>
     public string Recipe { get; init; }
-
-    /// <summary>
-    /// Gets the price of the blueprint.
-    /// </summary>
     public decimal Price { get; init; }
 }
 
-/// <summary>
-/// Represents a builder for creating or modifying blueprints.
-/// </summary>
-public class BoilerplateBuilderModel : BoilerplateDetails
+public class PizzaTemplateDTO
 {
-
-    public List<OptionDto2> Options { get; set; }
-
-
+    public string PizzaTemplateId { get; set; }
+    public string PizzaTemplateName { get; set; }
+    public List<IngredientDTO> Ingredients { get; set; }
+    public List<OptionDTO> Options { get; set; }
+    public decimal TotalCost { get; set; }
+    public SummaryDTO Summary { get; set; }
 }
 
-public class BoilerplateDetails
+public class IngredientDTO
 {
-    public int Id  { get; init; }
-
-    public string Name  { get; init; }
-
-    public decimal Price { get; init; }
-
-    public List<OptionDetailDto> Options { get; set; }
-
-    public List<IngredientDTO> Ingredients { get; init; }
+    public int IngredientId { get; set; }
+    public string Name { get; set; }
+    public string Type { get; set; } // Enum: Default, Optional, Excluded
+    public decimal AdditionalCost { get; set; }
+    //public bool IsSelected { get; set; }
 }
 
-public class OptionDetailDto 
+public class OptionDTO
 {
     public string Name { get; set; }
-    public decimal Cost { get; set; }
+    public decimal CostPerApplication { get; set; }
 }
 
-public class OptionServiceDetails
+public class AppliedOptionDTO
 {
-    public string Name  { get; init; }
+    public string Name { get; set; }
+    public int MaxTimesApplicable { get; set; }
+    public bool IsApplicable { get; set; }
+    public decimal TotalCost { get; set; }
+    public int TimesApplied { get; set; }
+}
 
-    public decimal Price { get; init; }
+public class SummaryDTO
+{
+    public List<AppliedIngredientSummaryDTO> SelectedIngredients { get; set; }
+    public List<AppliedOptionDTO> AppliedOptions { get; set; }
+}
 
-    public OptionServiceDetails(BoilerplateOptionService OptionService)
+public class AppliedOptionSummaryDTO
+{
+    public string OptionName { get; set; }
+    public int TimesApplied { get; set; }
+}
+
+public class AppliedIngredientSummaryDTO
+{
+    public int IngredientId { get; set; }
+    public string IngredientName { get; set; }
+}
+
+public class CreateOrUpdatePizzaTemplateRequestDTO
+{
+    public List<IngredientRequestDTO> Ingredients { get; set; } // Список ингредиентов
+    public List<AppliedOptionRequestDTO> AppliedOptions { get; set; } // Список примененных опций
+
+    public IEnumerable<string> GetKeys()
     {
-        if (OptionService == null)
-        {
-            throw new ArgumentNullException(nameof(OptionService));
-        }
-
-        Name = OptionService.Name;
-        Price = OptionService.Cost;
+        return AppliedOptions.Select(o => o.OptionName);
     }
 }
 
-/// <summary>
-/// Represents an item in a blueprint builder recipe.
-/// </summary>
-public class IngredientDTO2
+public class IngredientRequestDTO
 {
-    /// <summary>
-    /// Gets the ID of the ingredient.
-    /// </summary>
-    public int Id  { get; init; }
+    public int IngredientId { get; set; } // Уникальный идентификатор ингредиента
+    public string Name { get; set; } // Название ингредиента
+}
 
-    /// <summary>
-    /// Gets the name of the ingredient.
-    /// </summary>
-    public string Name { get; init; }
+public class AppliedOptionRequestDTO
+{
+    public string OptionName { get; set; } // Уникальный идентификатор опции
+    public int TimesApplied { get; set; } // Количество раз, примененное пользователем
 }

@@ -49,8 +49,37 @@ public class PizzaComContextSeed : IDbSeeder<PizzaComContext>
                 new Ingredient(IngredientVariant.Basil.Name, 0.50m, IngredientType.Herbs.Id),
                 new Ingredient(IngredientVariant.Corn.Name, 0.50m, IngredientType.Vegetable.Id)
             );
-            
-            context.SaveChanges();
+
+            await context.SaveChangesAsync();
+        }
+
+        if (!context.Boilerplates.Any())
+        {
+            var components = new List<Component>
+            {
+                // Основа пиццы
+                new Component(IngredientVariant.GlutenCrust.Id, ComponentType.Default.Id, 100),
+
+                // Ингредиенты
+                new Component(IngredientVariant.Mozzarella.Id, ComponentType.Default.Id, 150),
+                new Component(IngredientVariant.Tomato.Id, ComponentType.Default.Id, 100),
+
+                // Опционально добавляем базилик
+                // Убедитесь, что у вас есть базилик в списке ингредиентов, если нет, добавьте его
+                new Component(IngredientVariant.Basil.Id, ComponentType.Optional.Id, 10),
+                new Component(IngredientVariant.GlutenFreeCrust.Id, ComponentType.Optional.Id, 100),
+                new Component(IngredientVariant.Corn.Id, ComponentType.Optional.Id, 20),
+            };
+
+            // Создание пиццы
+            var boilerplate = new Boilerplate
+            (
+                "Margherita Pizza",
+                11.50m, // Цена может измениться в зависимости от цен на ингредиенты
+                components
+            );
+
+            context.Boilerplates.Add(boilerplate);
 
             await context.SaveChangesAsync();
         }

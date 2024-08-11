@@ -9,13 +9,13 @@ public static class Extensions
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddAutoMapper(typeof(Program));
-        
+
         builder.AddNpgsqlDbContext<PizzaComContext>("PizzaComDB");
 
         builder.Services.AddMigration<PizzaComContext, PizzaComContextSeed>();
 
-        builder.Services.AddScoped<IBlueprintQueries, BlueprintQueries>();
         builder.Services.AddScoped<IBoilerplateRepository, BoilerplateRepository>();
+        builder.Services.AddScoped<IBlueprintQueries, BlueprintQueries>();
         builder.Services.AddScoped<PizzaComServices>();
 
         builder.RegisterOptionKeyInProvider<AddDoubleMeatOptionService>();
