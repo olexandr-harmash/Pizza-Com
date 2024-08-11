@@ -1,4 +1,9 @@
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.Extensions.Options;
+using PizzaCom.Domain.Extensions;
+using PizzaCom.Domain.Models;
+using AutoMapper;
+using PizzaCom.API.Builders;
+using AutoMapper.Internal;
 using PizzaCom.Infrastructure.Repositories;
 
 namespace PizzaCom.API.Queries;
@@ -8,85 +13,71 @@ namespace PizzaCom.API.Queries;
 /// </summary>
 public class BlueprintQueries : IBlueprintQueries
 {
-    private PizzaComContext _context;
+    private readonly IBoilerplateRepository _repository;
+    private readonly IServiceProvider _provider;
+    private readonly IMapper _mapper;
+    private readonly ILogger<BlueprintQueries> _logger;
 
-    private BlueprintFactory _factory;
 
-    private ILogger<BlueprintQueries> _logger;
-
-    private IBlueprintRepository _repository;
+    //private IBlueprintRepository _repository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BlueprintQueries"/> class.
     /// </summary>
     /// <param name="context">The database context to use.</param>
-    public BlueprintQueries(PizzaComContext context, BlueprintFactory factory, ILogger<BlueprintQueries> logger, IBlueprintRepository repository)
+    public BlueprintQueries(IBoilerplateRepository repository, ILogger<BlueprintQueries> logger, IServiceProvider provider, IMapper mapper)
     {
-        _context = context;
-        _factory = factory;
-        _logger = logger;
         _repository = repository;
+        _logger = logger;
+        _mapper = mapper;
+        _provider = provider;
     }
 
-    /// <summary>
-    /// Gets the blueprint builder for the specified blueprint ID.
-    /// </summary>
-    /// <param name="blueprintId">The ID of the blueprint.</param>
-    /// <returns>A <see cref="BlueprintBuilder"/> object representing the blueprint.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown when the blueprint is not found.</exception>
-    public async Task<BlueprintBuilderModel> GetBlueprintBuilder(BlueprintOptions options)
+    public async Task<PizzaTemplateDTO> GetBlueprintBuilder(int id, CreateOrUpdatePizzaTemplateRequestDTO request)
     {
-        var blueprint = await _repository.GetAsync(options.Id);
+        var boilerplate = await _repository.GetBoilerplateDetailsByIdAsync(id);
 
-        if (blueprint is null)
-        {
-            //TODO: exception classes and exception handler in api
-            throw new KeyNotFoundException("Blueprint not found.");
-        }
+        var optionServiceInfo = _provider.GetRequiredService<IOptions<OptionServiceInfo>>().Value;
+
+        var appliedOptions = request.AppliedOptions
+            .Select(o => _provider.ExploreOptionByKeyFromProvider(boilerplate, o.OptionName, o.TimesApplied))
+            .ToList();
+
+        var availableOptions = optionServiceInfo.OptionServiceTypes.Keys
+            .Except(request.GetKeys())
+            .Select(key => _provider.ExploreOptionByKeyFromProvider(boilerplate, key, 1))
+            .Where(o => o.IsApplicable)
+            .ToList();
         
-        var builtBlueprint = _factory.BlueprintWithOptions(options, blueprint);
-
-        Func<Ingredient, IngredientDTO> toDto = i => new IngredientDTO
+        foreach (var ingredient in request.Ingredients)
         {
-            Id = i.Id,
-            Name = i.Name
-        };
+            var found = boilerplate.Components.First(c => c.IngredientId.Equals(ingredient.IngredientId));
 
-        // Вернуть модель с данными
-        return new BlueprintBuilderModel
-        {
-            Id = builtBlueprint.Id,
-            Name = builtBlueprint.Name,
-            Price = builtBlueprint.BaseCost,
-            AddDoubleMeatOption = _factory.GetOptionDetails(builtBlueprint, nameof(AddDoubleMeatOption)),
-            Included = builtBlueprint.Included.Select(toDto).ToList(),
-            Excluded = builtBlueprint.Excluded.Select(toDto).ToList()
-        };
+            boilerplate.AddComponent(found);
+        }       
+        
+        appliedOptions.ForEach(o => o.Apply());
+  
+        var builder = new PizzaTemplateDTOBuilder(_mapper.Map<PizzaTemplateDTO>(boilerplate));
+
+        var pizzaTemplateDTO = builder
+            .SetOptions(
+                _mapper.Map<List<OptionDTO>>(availableOptions)
+                .Concat(_mapper.Map<List<OptionDTO>>(appliedOptions))
+            )
+            .SetSummary(
+                _mapper.Map<List<AppliedOptionDTO>>(appliedOptions),
+                _mapper.Map<List<AppliedIngredientSummaryDTO>>(boilerplate.ComponentsWithMultiplier.Keys)
+            )
+            .Build();
+
+        return pizzaTemplateDTO;
     }
 
-    /// <summary>
-    /// Gets a list of blueprint cards.
-    /// </summary>
-    /// <returns>A list of <see cref="BlueprintCard"/> objects.</returns>
-    public async Task<List<BlueprintCard>> GetBlueprintCards()
+    public async Task<List<BoilerplateDTO>> GetBoilerplateDTOs()
     {
-        //Whithout pagination for proposes in small amount (30 max)
-        //TODO: select options support
-        return await _context.Blueprints
-            .Select(b => new BlueprintCard
-            {
-                Id = b.Id,
-                Name = b.Name,
-                Price = b.BaseCost,
-                Recipe = string.Join(", ", b.Recipes.Select(r => r.Ingredient.Name.ToLower()))
-            })
-            .ToListAsync();
-    }
+        var boilerplates = await _repository.GetBoilerplateDTOsAsync();
 
-    /// <summary>
-    /// Gets a list of ingredients.
-    /// </summary>
-    /// <returns>A list of <see cref="BlueprintBuilderRecipeItem"/> objects representing the ingredients.</returns>
-    public async Task<List<IngredientDTO>> GetIngredients() =>
-        await _context.Ingredients.Select(i => new IngredientDTO{Id = i.Id, Name = i.Name}).ToListAsync();
+        return _mapper.Map<List<BoilerplateDTO>>(boilerplates);
+    }
 }

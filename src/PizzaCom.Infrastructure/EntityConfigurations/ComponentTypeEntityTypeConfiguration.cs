@@ -1,11 +1,11 @@
 namespace PizzaCom.Infrastructure.EntityConfiguration;
 
-class RecipeTypeEntityTypeConfiguration
-    : IEntityTypeConfiguration<RecipeType>
+class ComponentTypeEntityTypeConfiguration
+    : IEntityTypeConfiguration<ComponentType>
 {
-    public void Configure(EntityTypeBuilder<RecipeType> recipeTypeConfiguration)
+    public void Configure(EntityTypeBuilder<ComponentType> recipeTypeConfiguration)
     {
-        recipeTypeConfiguration.ToTable("recipe_type");
+        recipeTypeConfiguration.ToTable("component_type");
 
         recipeTypeConfiguration.Property(r => r.Id)
             .ValueGeneratedNever();

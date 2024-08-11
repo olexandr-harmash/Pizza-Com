@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using PizzaCom.API.Models;
 
 namespace PizzaCom.API.Controllers;
 
@@ -14,38 +13,27 @@ public class PizzaComController : ControllerBase
     /// </summary>
     /// <returns>A list of blueprint cards.</returns>
     [HttpGet("blueprints")]
-    public async Task<ActionResult<List<BlueprintCard>>> GetBlueprintCards([FromServices] PizzaComServices services)
+    public async Task<ActionResult<List<BoilerplateDTO>>> GetBoilerplateDTOs([FromServices] PizzaComServices services)
     {
-        var blueprintCards = await services.Queries.GetBlueprintCards();
-        Console.WriteLine(blueprintCards);
-        return Ok(blueprintCards);
+        var BoilerplateDTOs = await services.Queries.GetBoilerplateDTOs();
+
+        return Ok(BoilerplateDTOs);
     }
 
     /// <summary>
-    /// Gets a blueprint builder model by blueprint options.
+    /// Gets a blueprint builder model by blueprint OptionServices.
     /// </summary>
-    /// <param name="options">The blueprint options.</param>
+    /// <param name="OptionServices">The blueprint OptionServices.</param>
     /// <returns>A blueprint builder model.</returns>
-    [HttpPost("blueprints/builder")]
-    public async Task<ActionResult<BlueprintBuilderModel>> GetBlueprintBuilder([FromBody] BlueprintOptions options,
+    [HttpPost("blueprints/details/{id}")]
+    public async Task<ActionResult<PizzaTemplateDTO>> GetBlueprintBuilder([FromRoute] int id, [FromBody] CreateOrUpdatePizzaTemplateRequestDTO OptionServices,
     [FromServices] PizzaComServices services)
     {
-        var blueprintBuilder = await services.Queries.GetBlueprintBuilder(options);
+        var blueprintBuilder = await services.Queries.GetBlueprintBuilder(id, OptionServices);
         if (blueprintBuilder == null)
         {
             return NotFound();
         }
         return Ok(blueprintBuilder);
-    }
-
-    /// <summary>
-    /// Gets a list of ingredients.
-    /// </summary>
-    /// <returns>A list of ingredients.</returns>
-    [HttpGet("ingredients")]
-    public async Task<ActionResult<List<IngredientDTO>>> GetIngredients([FromServices] PizzaComServices services)
-    {
-        var ingredients = await services.Queries.GetIngredients();
-        return Ok(ingredients);
     }
 }

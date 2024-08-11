@@ -7,10 +7,10 @@ class IngredientTypeEntityTypeConfiguration
     {
         ingredientTypeConfiguration.ToTable("ingredient_type");
 
-        ingredientTypeConfiguration.Property(bp => bp.Id)
+        ingredientTypeConfiguration.Property(t => t.Id)
             .ValueGeneratedNever();
 
-        ingredientTypeConfiguration.Property(bp => bp.Name)
+        ingredientTypeConfiguration.Property(t => t.Name)
             .HasMaxLength(200)
             .IsRequired();
     }

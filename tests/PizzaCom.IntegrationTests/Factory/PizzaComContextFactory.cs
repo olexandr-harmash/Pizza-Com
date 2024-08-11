@@ -4,12 +4,12 @@ public class PizzaComContextFactory
 {
     public static PizzaComContext Create()
     {
-        var options = new DbContextOptionsBuilder<PizzaComContext>()
+        var OptionServices = new DbContextOptionServicesBuilder<PizzaComContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .EnableSensitiveDataLogging()
-            .Options;
+            .OptionServices;
 
-        var context = new PizzaComContext(options);
+        var context = new PizzaComContext(OptionServices);
         
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();

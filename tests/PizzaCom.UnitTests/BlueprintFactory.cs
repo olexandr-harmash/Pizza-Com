@@ -21,7 +21,7 @@ public class BlueprintFactory
             .WithName("Pepperoni Pizza")
             .WithBaseCost(15.0m)
             .WithRecipe(new Recipe(id: 3, ingredientId: 200, costPer100g: 3.00m, weight: 150, name: "Pepperoni", type: RecipeType.Base, ingredientType: IngredientType.Meat))
-            .WithRecipe(new Recipe(id: 4, ingredientId: 201, costPer100g: 1.75m, weight: 60, name: "Olives", type: RecipeType.Optional, ingredientType: IngredientType.Vegetable));
+            .WithRecipe(new Recipe(id: 4, ingredientId: 201, costPer100g: 1.75m, weight: 60, name: "Olives", type: RecipeType.OptionServiceal, ingredientType: IngredientType.Vegetable));
 
         return builder.Build();
     }

@@ -30,6 +30,8 @@ namespace PizzaCom.Domain.AggregatesModel;
         /// </summary>
         public static IngredientType Seafood = new(5, nameof(Seafood));
 
+        public static IngredientType Herbs = new(6, nameof(Herbs));
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IngredientType"/> class.
         /// </summary>
