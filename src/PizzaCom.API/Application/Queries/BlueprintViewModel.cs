@@ -2,19 +2,16 @@ namespace PizzaCom.API.Queries;
 
 public class BoilerplateDTO
 {
-    public int Id  { get; init; }
-    public string Name { get; init; }
+    public int PizzaTemplateId  { get; init; }
+    public string PizzaTemplateName { get; init; }
     public string Recipe { get; init; }
-    public decimal Price { get; init; }
+    public decimal TotalCost { get; init; }
 }
 
-public class PizzaTemplateDTO
+public class PizzaTemplateDTO : BoilerplateDTO
 {
-    public string PizzaTemplateId { get; set; }
-    public string PizzaTemplateName { get; set; }
     public List<IngredientDTO> Ingredients { get; set; }
     public List<OptionDTO> Options { get; set; }
-    public decimal TotalCost { get; set; }
     public SummaryDTO Summary { get; set; }
 }
 
@@ -24,7 +21,6 @@ public class IngredientDTO
     public string Name { get; set; }
     public string Type { get; set; } // Enum: Default, Optional, Excluded
     public decimal AdditionalCost { get; set; }
-    //public bool IsSelected { get; set; }
 }
 
 public class OptionDTO

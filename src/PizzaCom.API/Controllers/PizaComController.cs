@@ -25,7 +25,7 @@ public class PizzaComController : ControllerBase
     /// </summary>
     /// <param name="OptionServices">The blueprint OptionServices.</param>
     /// <returns>A blueprint builder model.</returns>
-    [HttpPost("blueprints/details/{id}")]
+    [HttpGet("blueprints/details/{id}")]
     public async Task<ActionResult<PizzaTemplateDTO>> GetBlueprintBuilder([FromRoute] int id, [FromBody] CreateOrUpdatePizzaTemplateRequestDTO OptionServices,
     [FromServices] PizzaComServices services)
     {

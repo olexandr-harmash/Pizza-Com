@@ -20,6 +20,8 @@ public class BoilerplateRepository : IBoilerplateRepository
     {
         return await _context.Boilerplates
             .Include(b => b.Components)
+                .ThenInclude(c => c.ComponentType)
+            .Include(b => b.Components)
                 .ThenInclude(c => c.Ingredient)
             .ToListAsync();
     }

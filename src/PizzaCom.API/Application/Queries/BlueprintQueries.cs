@@ -16,19 +16,14 @@ public class BlueprintQueries : IBlueprintQueries
     private readonly IBoilerplateRepository _repository;
     private readonly IServiceProvider _provider;
     private readonly IMapper _mapper;
-    private readonly ILogger<BlueprintQueries> _logger;
-
-
-    //private IBlueprintRepository _repository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BlueprintQueries"/> class.
     /// </summary>
     /// <param name="context">The database context to use.</param>
-    public BlueprintQueries(IBoilerplateRepository repository, ILogger<BlueprintQueries> logger, IServiceProvider provider, IMapper mapper)
+    public BlueprintQueries(IBoilerplateRepository repository, IServiceProvider provider, IMapper mapper)
     {
         _repository = repository;
-        _logger = logger;
         _mapper = mapper;
         _provider = provider;
     }
