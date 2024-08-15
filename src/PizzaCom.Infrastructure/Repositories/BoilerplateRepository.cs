@@ -16,9 +16,11 @@ public class BoilerplateRepository : IBoilerplateRepository
         return _context.Boilerplates.Add(boilerplate).Entity;
     }
 
-    public async Task<List<Boilerplate>> GetBoilerplateDTOsAsync()
+    public async Task<List<Boilerplate>> GetBoilerplateAsync()
     {
         return await _context.Boilerplates
+            .Include(b => b.Components)
+                .ThenInclude(c => c.ComponentType)
             .Include(b => b.Components)
                 .ThenInclude(c => c.Ingredient)
             .ToListAsync();
