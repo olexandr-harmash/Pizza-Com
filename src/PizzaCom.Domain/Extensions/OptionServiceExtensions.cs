@@ -27,6 +27,20 @@ public static class OptionServiceExtensions
         return builder;
     }
 
+    public static IEnumerable<string> GetOptionServiceKeys(this IServiceProvider serviceProvider)
+    {
+        var optionServiceInfo = serviceProvider.GetRequiredService<IOptions<OptionServiceInfo>>().Value;
+
+        return optionServiceInfo.OptionServiceTypes.Keys;
+    }
+
+    public static IEnumerable<string> GetOptionServiceKeysExcept(this IServiceProvider serviceProvider, IEnumerable<string> optionKeys)
+    {
+        var optionServiceInfo = serviceProvider.GetRequiredService<IOptions<OptionServiceInfo>>().Value;
+
+        return optionServiceInfo.OptionServiceTypes.Keys.Except(optionKeys);
+    }
+
     /// <summary>
     /// Creates an instance of an option service based on the specified option key.
     /// </summary>

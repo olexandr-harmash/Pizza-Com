@@ -1,5 +1,3 @@
-using PizzaCom.Domain.AggregatesModel;
-
 namespace PizzaCom.API.Builders;
 
 public class PizzaTemplateDTOBuilder
@@ -42,17 +40,7 @@ public class PizzaTemplateDTOBuilder
 
         if (_pizzaTemplateDTO.Summary == null)
         {
-            throw new InvalidOperationException("Summary must be set.");
-        }
-
-        if (_pizzaTemplateDTO.Summary.AppliedOptions == null)
-        {
-            throw new InvalidOperationException("Summary's AppliedOptions must be set and cannot be empty.");
-        }
-
-        if (_pizzaTemplateDTO.Summary.SelectedIngredients == null)
-        {
-            throw new InvalidOperationException("Summary's SelectedIngredients must be set and cannot be empty.");
+            throw new InvalidOperationException("Summary must be set and cannot be empty.");
         }
     }
 }

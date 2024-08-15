@@ -1,3 +1,4 @@
+using PizzaCom.API.Application.Behaviors;
 using PizzaCom.Domain.BoilerplateOptionServices;
 using PizzaCom.Domain.Extensions;
 using PizzaCom.Infrastructure.Repositories;
@@ -14,8 +15,9 @@ public static class Extensions
 
         builder.Services.AddMigration<PizzaComContext, PizzaComContextSeed>();
 
+        builder.Services.AddScoped<IPizzaQueriesService, PizzaQueriesService>();
         builder.Services.AddScoped<IBoilerplateRepository, BoilerplateRepository>();
-        builder.Services.AddScoped<IBlueprintQueries, BlueprintQueries>();
+        builder.Services.AddScoped<IPizzaQueries, PizzaQueries>();
         builder.Services.AddScoped<PizzaComServices>();
 
         builder.RegisterOptionKeyInProvider<AddDoubleMeatOptionService>();
@@ -23,5 +25,12 @@ public static class Extensions
         builder.RegisterOptionKeyInProvider<AddCornOptionService>();
         builder.RegisterOptionKeyInProvider<AddGlutenFreeCrustOptionService>();
         builder.RegisterOptionKeyInProvider<AddCheeseRimOptionService>();
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblyContaining(typeof(Program));
+
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        });
     }
 }
